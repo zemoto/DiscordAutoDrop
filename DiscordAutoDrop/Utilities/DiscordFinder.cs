@@ -1,43 +1,62 @@
-﻿using UIAutomationClient;
+﻿using System;
+using FlaUI.Core;
+using FlaUI.Core.AutomationElements.Infrastructure;
+using FlaUI.Core.Definitions;
+using FlaUI.Core.Patterns;
+using FlaUI.UIA3;
+using Debug = System.Diagnostics.Debug;
 
 namespace DiscordAutoDrop.Utilities
 {
-   internal sealed class DiscordFinder
+   internal sealed class DiscordFinder : IDisposable
    {
-      private readonly CUIAutomation _automation = new CUIAutomation();
+      private bool _initialized;
+      private readonly AutomationBase _automation = new UIA3Automation();
+      private readonly InspectLauncher _inspectLauncher = new InspectLauncher();
 
-      public IUIAutomationElement FindDiscord()
+      public bool Inititialize()
       {
-         var classNameCondition = _automation.CreatePropertyCondition( UIA_PropertyIds.UIA_ClassNamePropertyId, "Chrome_WidgetWin_1" );
-         var rootElement = _automation.GetRootElement();
-         var children = rootElement.FindAll( TreeScope.TreeScope_Children, classNameCondition );
-         for ( int i = 0; i < children.Length; i++ )
+         if ( !_initialized )
          {
-            var child = children.GetElement( i );
-            if ( child.CurrentName.Contains( "- Discord" ) )
-            {
-               return child;
-            }
+            _initialized = _inspectLauncher.EnsureInspectLaunched();
          }
-         return null;
+         return _initialized;
       }
 
-      public IUIAutomationLegacyIAccessiblePattern FindDiscordMessageBoxLegacyPattern( IUIAutomationElement discord )
+      public void Dispose()
       {
-         var controlTypeCondition = _automation.CreatePropertyCondition( UIA_PropertyIds.UIA_ControlTypePropertyId, UIA_ControlTypeIds.UIA_EditControlTypeId );
-         var editControls = discord.FindAll( TreeScope.TreeScope_Descendants, controlTypeCondition );
-         for ( int j = 0; j < editControls.Length; j++ )
-         {
-            var editControl = editControls.GetElement( j );
-            if ( !editControl.CurrentName.Contains( "Message" ) )
-            {
-               continue;
-            }
+         _automation?.Dispose();
+         _inspectLauncher?.Dispose();
+      }
 
-            int patternId = 10018/*IUIAutomationLegacyIAccessiblePattern*/;
-            if ( editControl.GetCurrentPattern( patternId ) is IUIAutomationLegacyIAccessiblePattern legacyPattern )
+      public (AutomationElement discord, IInvokePattern invokePattern) FindDiscord()
+      {
+         Debug.Assert( _initialized );
+
+         var rootElement = _automation.GetDesktop();
+         var children = rootElement.FindAll( TreeScope.Children, _automation.ConditionFactory.ByClassName( "Chrome_WidgetWin_1" ) );
+         foreach ( var child in children )
+         {
+            if ( child.Name.Contains( "- Discord" ) )
             {
-               return legacyPattern;
+               var messageBox = SearchDiscordForMessageBox( child );
+               if ( messageBox != null )
+               {
+                  return (child, messageBox);
+               }
+            }
+         }
+         return (null, null);
+      }
+
+      private IInvokePattern SearchDiscordForMessageBox( AutomationElement discord )
+      {
+         var editControls = discord.FindAll( TreeScope.Descendants, _automation.ConditionFactory.ByControlType( ControlType.Edit ) );
+         foreach ( var editControl in editControls )
+         {
+            if ( editControl.Name.Contains( "Message" ) && editControl.Patterns.Invoke.IsSupported )
+            {
+               return editControl.Patterns.Invoke.Pattern;
             }
          }
          return null;

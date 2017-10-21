@@ -1,33 +1,37 @@
-﻿using System.Diagnostics;
-using System.Threading;
+﻿using System;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Forms;
 using DiscordAutoDrop.Utilities;
-using UIAutomationClient;
+using FlaUI.Core.AutomationElements.Infrastructure;
+using FlaUI.Core.Patterns;
 
 namespace DiscordAutoDrop
 {
-   public partial class MainWindow
+   public partial class MainWindow : IDisposable
    {
-      private readonly IUIAutomationElement _discord;
-      private readonly IUIAutomationLegacyIAccessiblePattern _messageBoxLegacyPattern;
+      private readonly AutomationElement _discord;
+      private readonly IInvokePattern _messageBoxLegacyPattern;
+      private readonly DiscordFinder _discordFinder;
 
       public MainWindow()
       {
          InitializeComponent();
 
-         var discordFinder = new DiscordFinder();
-         _discord = discordFinder.FindDiscord();
-         if ( _discord != null )
-         {
-            _messageBoxLegacyPattern = discordFinder.FindDiscordMessageBoxLegacyPattern( _discord );
-         }
+         _discordFinder = new DiscordFinder();
+         Debug.Assert( _discordFinder.Inititialize() );
+         (_discord, _messageBoxLegacyPattern) = _discordFinder.FindDiscord();
+      }
+
+      public void Dispose()
+      {
+         _discordFinder?.Dispose();
       }
 
       private void OnButtonClick( object sender, RoutedEventArgs e )
       {
-         _messageBoxLegacyPattern.DoDefaultAction();
-         var handle = _discord.CurrentNativeWindowHandle;
+         _messageBoxLegacyPattern.Invoke();
+         var handle = _discord.Properties.NativeWindowHandle;
          using ( new WindowTemporaryForgrounder( handle, true ) )
          {
             SendKeys.SendWait( "!toot" );
