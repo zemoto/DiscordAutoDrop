@@ -71,6 +71,8 @@
       <DependentUpon>HotkeyControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="HotkeyManager.cs" />
+    <Compile Include="MainViewModel.cs" />
+    <Compile Include="MVVM\ViewModelBase.cs" />
     <Compile Include="MVVM\RelayCommand.cs" />
     <Compile Include="Utilities\DiscordFinder.cs" />
     <Compile Include="Utilities\InspectLauncher.cs" />
