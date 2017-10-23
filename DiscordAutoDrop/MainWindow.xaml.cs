@@ -8,7 +8,7 @@ using FlaUI.Core.Patterns;
 
 namespace DiscordAutoDrop
 {
-   public partial class MainWindow : IDisposable
+   public partial class MainWindow
    {
       private readonly AutomationElement _discord;
       private readonly IInvokePattern _messageBoxLegacyPattern;
@@ -21,11 +21,6 @@ namespace DiscordAutoDrop
          _discordFinder = new DiscordFinder();
          Debug.Assert( _discordFinder.Inititialize() );
          (_discord, _messageBoxLegacyPattern) = _discordFinder.FindDiscord();
-      }
-
-      public void Dispose()
-      {
-         _discordFinder?.Dispose();
       }
 
       private void OnButtonClick( object sender, RoutedEventArgs e )

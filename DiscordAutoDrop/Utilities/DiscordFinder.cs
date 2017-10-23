@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using FlaUI.Core;
 using FlaUI.Core.AutomationElements.Infrastructure;
 using FlaUI.Core.Definitions;
@@ -8,42 +9,46 @@ using Debug = System.Diagnostics.Debug;
 
 namespace DiscordAutoDrop.Utilities
 {
-   internal sealed class DiscordFinder : IDisposable
+   internal sealed class DiscordFinder
    {
       private bool _initialized;
       private readonly AutomationBase _automation = new UIA3Automation();
-      private readonly InspectLauncher _inspectLauncher = new InspectLauncher();
+
+      ~DiscordFinder()
+      {
+         _automation?.Dispose();
+      }
 
       public bool Inititialize()
       {
          if ( !_initialized )
          {
-            _initialized = _inspectLauncher.EnsureInspectLaunched();
+            using ( var launcher = new InspectLauncher() )
+            {
+               _initialized = launcher.EnsureInspectLaunched();
+            }
          }
          return _initialized;
-      }
-
-      public void Dispose()
-      {
-         _automation?.Dispose();
-         _inspectLauncher?.Dispose();
       }
 
       public (AutomationElement discord, IInvokePattern invokePattern) FindDiscord()
       {
          Debug.Assert( _initialized );
 
-         var rootElement = _automation.GetDesktop();
-         var children = rootElement.FindAll( TreeScope.Children, _automation.ConditionFactory.ByClassName( "Chrome_WidgetWin_1" ) );
-         foreach ( var child in children )
+         var processes = Process.GetProcessesByName( "discord" );
+
+         foreach ( var process in processes )
          {
-            if ( child.Name.Contains( "- Discord" ) )
+            if ( process.MainWindowHandle == IntPtr.Zero )
             {
-               var messageBox = SearchDiscordForMessageBox( child );
-               if ( messageBox != null )
-               {
-                  return (child, messageBox);
-               }
+               continue;
+            }
+
+            var discord = _automation.FromHandle( process.MainWindowHandle );
+            var messageBox = SearchDiscordForMessageBox( discord );
+            if ( messageBox != null )
+            {
+               return (discord, messageBox);
             }
          }
          return (null, null);
