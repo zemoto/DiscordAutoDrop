@@ -4,14 +4,36 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:DiscordAutoDrop.ViewModels"
+        xmlns:discordAutoDrop="clr-namespace:DiscordAutoDrop"
         mc:Ignorable="d"
         Title="MainWindow" 
+        Name="RootControl"
+        WindowStartupLocation="CenterScreen"
         Height="350" 
         Width="525"
         d:DataContext="{d:DesignInstance viewModels:MainViewModel}">
-   <StackPanel>
-      <Button Width="50"
-              Height="50"
-              Command="{Binding MainButtonCommand}" />
-   </StackPanel>
+   <Grid>
+      <ItemsControl ItemsSource="{Binding DiscordCommands}"
+                    VerticalAlignment="Center">
+         <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+               <StackPanel />
+            </ItemsPanelTemplate>
+         </ItemsControl.ItemsPanel>
+         <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="{x:Type viewModels:DiscordCommandViewModel}">
+               <StackPanel Orientation="Horizontal">
+                  <TextBox Width="80"
+                           Height="24"
+                           Text="{Binding DiscordCommand, Mode=TwoWay}"
+                           Margin="8,4"/>
+                  <discordAutoDrop:HotkeyControl Hotkey="{Binding HotKey, Mode=TwoWay}"
+                                                 Modifier="{Binding Modifier, Mode=TwoWay}"
+                                                 HotkeyId="{Binding HotkeyId, Mode=TwoWay}"
+                                                 Manager="{Binding DataContext.Manager, ElementName=RootControl}" />
+               </StackPanel>
+            </DataTemplate>
+         </ItemsControl.ItemTemplate>
+      </ItemsControl>
+   </Grid>
 </Window>

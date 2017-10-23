@@ -1,15 +1,17 @@
-﻿using System.Windows.Input;
+﻿using System.Collections.ObjectModel;
 using DiscordAutoDrop.MVVM;
 
 namespace DiscordAutoDrop.ViewModels
 {
    internal sealed class MainViewModel : ViewModelBase
    {
-      private ICommand _mainButtonCommand;
-      public ICommand MainButtonCommand
+      public MainViewModel( HotkeyManager manager )
       {
-         get => _mainButtonCommand;
-         set => SetProperty( ref _mainButtonCommand, value );
+         Manager = manager;
       }
+
+      public HotkeyManager Manager { get; }
+
+      public ObservableCollection<DiscordCommandViewModel> DiscordCommands { get; } = new ObservableCollection<DiscordCommandViewModel>();
    }
 }

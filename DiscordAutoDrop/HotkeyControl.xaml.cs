@@ -1,24 +1,10 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
 
 namespace DiscordAutoDrop
 {
-   public sealed class HotkeyRegisteredEventArgs : EventArgs
-   {
-      public HotkeyRegisteredEventArgs( int id )
-      {
-         HotkeyId = id;
-      }
-
-      public int HotkeyId { get; }
-   }
-
    public partial class HotkeyControl
    {
-      private Key _hotkey = Key.None;
-      private ModifierKeys _modifier = ModifierKeys.None;
-
       public static readonly DependencyProperty ManagerProperty = DependencyProperty.Register(
          nameof(Manager),
          typeof(HotkeyManager),
@@ -31,19 +17,40 @@ namespace DiscordAutoDrop
          set => SetValue( ManagerProperty, value );
       }
 
-
-
-      // HotkeyRegisteredCommand
-      public static readonly DependencyProperty HotkeyRegisteredCommandProperty = DependencyProperty.Register(
-         nameof(HotkeyRegisteredCommand),
-         typeof(ICommand),
+      public static readonly DependencyProperty HotkeyProperty = DependencyProperty.Register(
+         nameof(Hotkey),
+         typeof(Key),
          typeof(HotkeyControl),
-         new PropertyMetadata( null ) );
+         new PropertyMetadata( Key.None ) );
 
-      public ICommand HotkeyRegisteredCommand
+      public Key Hotkey
       {
-         get => (ICommand)GetValue( HotkeyRegisteredCommandProperty );
-         set => SetValue( HotkeyRegisteredCommandProperty, value );
+         get => (Key)GetValue( HotkeyProperty );
+         set => SetValue( HotkeyProperty, value );
+      }
+
+      public static readonly DependencyProperty ModifierProperty = DependencyProperty.Register(
+         nameof(Modifier),
+         typeof(ModifierKeys),
+         typeof(HotkeyControl),
+         new PropertyMetadata( ModifierKeys.None ) );
+
+      public ModifierKeys Modifier
+      {
+         get => (ModifierKeys)GetValue( ModifierProperty );
+         set => SetValue( ModifierProperty, value );
+      }
+
+      public static readonly DependencyProperty HotkeyIdProperty = DependencyProperty.Register(
+         nameof(HotkeyId),
+         typeof(int),
+         typeof(HotkeyControl),
+         new PropertyMetadata( 0 ) );
+
+      public int HotkeyId
+      {
+         get => (int)GetValue( HotkeyIdProperty );
+         set => SetValue( HotkeyIdProperty, value );
       }
 
       public HotkeyControl()
@@ -54,6 +61,7 @@ namespace DiscordAutoDrop
       private void OnHotkeyTextBoxGotKeyboardFocus( object sender, KeyboardFocusChangedEventArgs e )
       {
          HintTextBlock.Text = "Press a hotkey";
+         HotkeyTextBox.Text = string.Empty;
          HotkeyTextBox.PreviewKeyDown += OnHotkeyTextBoxPreviewKeyDown;
       }
 
@@ -69,42 +77,44 @@ namespace DiscordAutoDrop
 
          if ( Manager != null && Manager.TryRegister( key, modifier, out int id ) )
          {
-            _hotkey = key;
-            _modifier = modifier;
-            Keyboard.ClearFocus();
-
-            if ( HotkeyRegisteredCommand?.CanExecute( id ) == true )
+            if ( Hotkey != Key.None )
             {
-               HotkeyRegisteredCommand.Execute( id );
+               Manager.Unregister( HotkeyId );
             }
+
+            Hotkey = key;
+            Modifier = modifier;
+            HotkeyId = id;
          }
+         Keyboard.ClearFocus();
       }
 
       private void OnHotkeyTextBoxLostKeyboardFocus( object sender, KeyboardFocusChangedEventArgs e )
       {
          HotkeyTextBox.PreviewKeyDown -= OnHotkeyTextBoxPreviewKeyDown;
-         if ( _hotkey == Key.None )
+         if ( Hotkey == Key.None )
          {
             HintTextBlock.Text = "Select a hotkey";
          }
          else
          {
-            HotkeyTextBox.Text = $"{GetModifierString()}{_hotkey.ToString()}";
+            HintTextBlock.Text = string.Empty;
+            HotkeyTextBox.Text = $"{GetModifierString()}{Hotkey.ToString()}";
          }
       }
 
       private string GetModifierString()
       {
          var modifierString = string.Empty;
-         if ( _modifier.HasFlag( ModifierKeys.Alt ) )
+         if ( Modifier.HasFlag( ModifierKeys.Alt ) )
          {
             modifierString += "Alt + ";
          }
-         if ( _modifier.HasFlag( ModifierKeys.Control ) )
+         if ( Modifier.HasFlag( ModifierKeys.Control ) )
          {
             modifierString += "Ctrl + ";
          }
-         if ( _modifier.HasFlag( ModifierKeys.Shift ) )
+         if ( Modifier.HasFlag( ModifierKeys.Shift ) )
          {
             modifierString += "Shift + ";
          }

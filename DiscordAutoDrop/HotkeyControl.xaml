@@ -4,17 +4,21 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
-             d:DesignHeight="28"
-             d:DesignWidth="80">
+             Height="24"
+             Width="120">
    <Grid>
-      <TextBlock x:Name="HintTextBlock" 
-                 Margin="5,2"
-                 MinWidth="50"
-                 Text="Suche..."
-                 Foreground="LightSteelBlue" />
       <TextBox x:Name="HotkeyTextBox" 
                TextAlignment="Left"
                GotKeyboardFocus="OnHotkeyTextBoxGotKeyboardFocus"
                LostKeyboardFocus="OnHotkeyTextBoxLostKeyboardFocus"/>
+
+      <TextBlock x:Name="HintTextBlock"
+                 HorizontalAlignment="Left"
+                 Margin="5,2"
+                 Width="80"
+                 Text="Select a hotkey"
+                 Foreground="Black"
+                 Opacity="0.4"
+                 IsHitTestVisible="False" />
    </Grid>
 </UserControl>

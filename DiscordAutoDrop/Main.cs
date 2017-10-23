@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using DiscordAutoDrop.MVVM;
 using DiscordAutoDrop.Splash;
 using DiscordAutoDrop.Utilities;
 using DiscordAutoDrop.ViewModels;
@@ -17,6 +17,12 @@ namespace DiscordAutoDrop
 
       private MainWindow _window;
       private MainViewModel _vm;
+      private HotkeyManager _hotkeyManager;
+
+      ~Main()
+      {
+         _hotkeyManager?.Dispose();
+      }
 
       public async Task StartupAsync()
       {
@@ -44,15 +50,16 @@ namespace DiscordAutoDrop
             }
          }
 
+         _hotkeyManager = new HotkeyManager();
+         _hotkeyManager.HotkeyFired += OnHotkeyFired;
+
          splash.Close();
       }
 
       public void ShowDialog()
       {
-         _vm = new MainViewModel
-         {
-            MainButtonCommand = new RelayCommand( OnMainButtonPressed )
-         };
+         _vm = new MainViewModel( _hotkeyManager );
+         _vm.DiscordCommands.Add( new DiscordCommandViewModel() );
 
          _window = new MainWindow
          {
@@ -62,13 +69,22 @@ namespace DiscordAutoDrop
          _window.ShowDialog();
       }
 
-      private void OnMainButtonPressed()
+      private void OnHotkeyFired( object sender, HotkeyFiredEventArgs e )
+      {
+         var command = _vm.DiscordCommands.FirstOrDefault( x => x.HotkeyId == e.HotkeyId );
+         if ( command != null )
+         {
+            FireCommand( command.DiscordCommand );
+         }
+      }
+
+      private void FireCommand( string command )
       {
          _messageBox.Invoke();
          var handle = _discord.Properties.NativeWindowHandle;
          using ( new WindowTemporaryForgrounder( handle, true ) )
          {
-            SendKeys.SendWait( "!toot" );
+            SendKeys.SendWait( $"!{command}" );
             SendKeys.SendWait( "{Enter}" );
          }
       }
