@@ -9,7 +9,6 @@ using DiscordAutoDrop.Utilities;
 using DiscordAutoDrop.ViewModels;
 using FlaUI.Core.AutomationElements.Infrastructure;
 using FlaUI.Core.Patterns;
-using MessageBox = System.Windows.MessageBox;
 
 namespace DiscordAutoDrop
 {
@@ -80,10 +79,6 @@ namespace DiscordAutoDrop
                   command.HotkeyId = id;
                   _vm.DiscordCommands.Add( command );
                }
-               else
-               {
-                  MessageBox.Show( splash, $"Could not re-register hotkey for command \"{command.DiscordCommand}\"" );
-               }
             }
          }
          splash.Close();
@@ -91,6 +86,11 @@ namespace DiscordAutoDrop
 
       public void ShowDialog()
       {
+         if ( !_vm.DiscordCommands.Any() )
+         {
+            _vm.DiscordCommands.Add( new DiscordCommandViewModel() );
+         }
+
          _window = new MainWindow
          {
             DataContext = _vm
@@ -112,7 +112,7 @@ namespace DiscordAutoDrop
       {
          _messageBox.Invoke();
          var handle = _discord.Properties.NativeWindowHandle;
-         using ( new WindowTemporaryForgrounder( handle, true ) )
+         using ( new WindowTemporaryForgrounder( handle ) )
          {
             SendKeys.SendWait( $"!{command}" );
             SendKeys.SendWait( "{Enter}" );

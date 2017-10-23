@@ -14,6 +14,7 @@ namespace DiscordAutoDrop.Utilities
          IgnoreMove = 0x0002,
          IgnoreResize = 0x0001,
          ShowWindow = 0x0040,
+         HideWindow = 0x0080
       }
 
       public const int WM_HOTKEY = 0x0312;
@@ -31,10 +32,11 @@ namespace DiscordAutoDrop.Utilities
 
       [DllImport( "user32.dll" )]
       [return: MarshalAs( UnmanagedType.Bool )]
-      public static extern bool IsWindowVisible( IntPtr hWnd );
+      public static extern bool SetForegroundWindow( IntPtr hWnd );
 
-      [DllImport( "user32.dll", EntryPoint = "GetWindowText", ExactSpelling = false, CharSet = CharSet.Auto, SetLastError = true )]
-      public static extern int GetWindowText( IntPtr hWnd, StringBuilder lpWindowText, int nMaxCount );
+      [DllImport( "user32.dll" )]
+      [return: MarshalAs( UnmanagedType.Bool )]
+      public static extern bool IsWindowVisible( IntPtr hWnd );
 
       [DllImport( "user32.dll" )]
       public static extern bool ShowWindow( IntPtr hWnd, int nCmdShow );
