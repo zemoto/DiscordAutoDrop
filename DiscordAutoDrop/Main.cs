@@ -2,17 +2,21 @@
 using System.Windows.Forms;
 using DiscordAutoDrop.MVVM;
 using DiscordAutoDrop.Utilities;
+using DiscordAutoDrop.ViewModels;
 using FlaUI.Core.AutomationElements.Infrastructure;
 using FlaUI.Core.Patterns;
 
 namespace DiscordAutoDrop
 {
-   internal sealed class MainViewModel : ViewModelBase
+   internal sealed class Main
    {
-      private readonly AutomationElement _discord;
-      private readonly IInvokePattern _messageBoxLegacyPattern;
+      private AutomationElement _discord;
+      private IInvokePattern _messageBoxLegacyPattern;
 
-      public MainViewModel()
+      private readonly MainWindow _window = new MainWindow();
+      private readonly MainViewModel _vm = new MainViewModel();
+
+      public void Startup()
       {
          using ( var discordFinder = new DiscordFinder() )
          {
@@ -21,8 +25,14 @@ namespace DiscordAutoDrop
          }
       }
 
-      private RelayCommand _buttonPressedCommand;
-      public RelayCommand ButtonPressedCommand => _buttonPressedCommand ?? ( _buttonPressedCommand = new RelayCommand( () =>
+      public void ShowDialog()
+      {
+         _vm.MainButtonCommand = new RelayCommand( OnMainButtonPressed );
+         _window.DataContext = _vm;
+         _window.ShowDialog();
+      }
+
+      private void OnMainButtonPressed()
       {
          _messageBoxLegacyPattern.Invoke();
          var handle = _discord.Properties.NativeWindowHandle;
@@ -31,6 +41,6 @@ namespace DiscordAutoDrop
             SendKeys.SendWait( "!toot" );
             SendKeys.SendWait( "{Enter}" );
          }
-      } ) );
+      }
    }
 }
