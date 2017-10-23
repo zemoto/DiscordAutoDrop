@@ -46,7 +46,6 @@ namespace DiscordAutoDrop
          if ( msg == NativeMethods.WM_HOTKEY )
          {
             HotkeyFired?.Invoke( this, new HotkeyFiredEventArgs( wparam.ToInt32() ) );
-
          }
          return IntPtr.Zero;
       }

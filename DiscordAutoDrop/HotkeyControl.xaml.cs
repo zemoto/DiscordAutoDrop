@@ -31,7 +31,20 @@ namespace DiscordAutoDrop
          set => SetValue( ManagerProperty, value );
       }
 
-      public event EventHandler<HotkeyRegisteredEventArgs> HotkeyRegistered; 
+
+
+      // HotkeyRegisteredCommand
+      public static readonly DependencyProperty HotkeyRegisteredCommandProperty = DependencyProperty.Register(
+         nameof(HotkeyRegisteredCommand),
+         typeof(ICommand),
+         typeof(HotkeyControl),
+         new PropertyMetadata( null ) );
+
+      public ICommand HotkeyRegisteredCommand
+      {
+         get => (ICommand)GetValue( HotkeyRegisteredCommandProperty );
+         set => SetValue( HotkeyRegisteredCommandProperty, value );
+      }
 
       public HotkeyControl()
       {
@@ -60,7 +73,10 @@ namespace DiscordAutoDrop
             _modifier = modifier;
             Keyboard.ClearFocus();
 
-            HotkeyRegistered?.Invoke( this, new HotkeyRegisteredEventArgs( id ) );
+            if ( HotkeyRegisteredCommand?.CanExecute( id ) == true )
+            {
+               HotkeyRegisteredCommand.Execute( id );
+            }
          }
       }
 
