@@ -14,6 +14,8 @@ namespace DiscordAutoDrop
          var main = new Main();
          await main.StartupAsync();
          main.ShowDialog();
+
+         ( (App)sender ).Shutdown();
       }
    }
 }

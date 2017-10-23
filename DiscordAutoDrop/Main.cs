@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -7,11 +9,16 @@ using DiscordAutoDrop.Utilities;
 using DiscordAutoDrop.ViewModels;
 using FlaUI.Core.AutomationElements.Infrastructure;
 using FlaUI.Core.Patterns;
+using MessageBox = System.Windows.MessageBox;
 
 namespace DiscordAutoDrop
 {
    internal sealed class Main
    {
+      private const string XmlFileName = "DiscordCommand.xml";
+
+      private readonly XmlSerializer<ObservableCollection<DiscordCommandViewModel>> _serializer;
+
       private AutomationElement _discord;
       private IInvokePattern _messageBox;
 
@@ -19,9 +26,15 @@ namespace DiscordAutoDrop
       private MainViewModel _vm;
       private HotkeyManager _hotkeyManager;
 
+      public Main()
+      {
+         var xmlFilePath = Path.Combine( Directory.GetCurrentDirectory(), XmlFileName );
+         _serializer = new XmlSerializer<ObservableCollection<DiscordCommandViewModel>>( xmlFilePath );
+      }
+
       ~Main()
       {
-         _hotkeyManager?.Dispose();
+         _serializer.Serialize( _vm.DiscordCommands );
       }
 
       public async Task StartupAsync()
@@ -50,17 +63,34 @@ namespace DiscordAutoDrop
             }
          }
 
+         splash.DisplayTask( LoadingTask.LoadingSavedDiscordCommands );
+         var commands = await Task.Factory.StartNew( _serializer.Deserialize );
+      
+         splash.DisplayTask( LoadingTask.RegisteringSavedHotkeys );
          _hotkeyManager = new HotkeyManager();
          _hotkeyManager.HotkeyFired += OnHotkeyFired;
+         _vm = new MainViewModel( _hotkeyManager );
 
+         if ( commands != null )
+         {
+            foreach ( var command in commands )
+            {
+               if ( _hotkeyManager.TryRegister( command.HotKey, command.Modifier, out int id ) )
+               {
+                  command.HotkeyId = id;
+                  _vm.DiscordCommands.Add( command );
+               }
+               else
+               {
+                  MessageBox.Show( splash, $"Could not re-register hotkey for command \"{command.DiscordCommand}\"" );
+               }
+            }
+         }
          splash.Close();
       }
 
       public void ShowDialog()
       {
-         _vm = new MainViewModel( _hotkeyManager );
-         _vm.DiscordCommands.Add( new DiscordCommandViewModel() );
-
          _window = new MainWindow
          {
             DataContext = _vm

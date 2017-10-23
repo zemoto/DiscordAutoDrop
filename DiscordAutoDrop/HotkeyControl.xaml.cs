@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Input;
 
 namespace DiscordAutoDrop
@@ -56,6 +57,26 @@ namespace DiscordAutoDrop
       public HotkeyControl()
       {
          InitializeComponent();
+
+         Loaded += OnLoaded;
+      }
+
+      private void OnLoaded( object sender, RoutedEventArgs routedEventArgs )
+      {
+         UpdateText();
+      }
+
+      private void UpdateText()
+      {
+         if ( Hotkey == Key.None )
+         {
+            HintTextBlock.Text = "Select a hotkey";
+         }
+         else
+         {
+            HintTextBlock.Text = string.Empty;
+            HotkeyTextBox.Text = $"{GetModifierString()}{Hotkey.ToString()}";
+         }
       }
 
       private void OnHotkeyTextBoxGotKeyboardFocus( object sender, KeyboardFocusChangedEventArgs e )
@@ -92,15 +113,7 @@ namespace DiscordAutoDrop
       private void OnHotkeyTextBoxLostKeyboardFocus( object sender, KeyboardFocusChangedEventArgs e )
       {
          HotkeyTextBox.PreviewKeyDown -= OnHotkeyTextBoxPreviewKeyDown;
-         if ( Hotkey == Key.None )
-         {
-            HintTextBlock.Text = "Select a hotkey";
-         }
-         else
-         {
-            HintTextBlock.Text = string.Empty;
-            HotkeyTextBox.Text = $"{GetModifierString()}{Hotkey.ToString()}";
-         }
+         UpdateText();
       }
 
       private string GetModifierString()

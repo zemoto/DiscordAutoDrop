@@ -9,7 +9,9 @@ namespace DiscordAutoDrop.Splash
       LaunchingInspect,
       InitializingUIAutomation,
       FindingDiscord,
-      FindingDiscordMessageBox
+      FindingDiscordMessageBox,
+      LoadingSavedDiscordCommands,
+      RegisteringSavedHotkeys
    }
 
    public partial class SplashScreen
@@ -20,7 +22,9 @@ namespace DiscordAutoDrop.Splash
          [LoadingTask.LaunchingInspect] = "Injecting UI Automation DLLs...",
          [LoadingTask.InitializingUIAutomation] = "Initializing UI Automation Search Trees...",
          [LoadingTask.FindingDiscord] = "Finding Discord window...",
-         [LoadingTask.FindingDiscordMessageBox] = "Finding Discord message box..."
+         [LoadingTask.FindingDiscordMessageBox] = "Finding Discord message box...",
+         [LoadingTask.LoadingSavedDiscordCommands] = "Loading saved discord commands...",
+         [LoadingTask.RegisteringSavedHotkeys] = "Registering saved hotkeys..."
       }.ToImmutableDictionary();
 
       public SplashScreen()

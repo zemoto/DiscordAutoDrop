@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
@@ -18,7 +19,7 @@ namespace DiscordAutoDrop
       public int HotkeyId { get; }
    }
 
-   public sealed class HotkeyManager : Window, IDisposable
+   public sealed class HotkeyManager : Window
    {
       public event EventHandler<HotkeyFiredEventArgs> HotkeyFired;
 
@@ -30,6 +31,7 @@ namespace DiscordAutoDrop
       {
          var helper = new WindowInteropHelper( this );
          helper.EnsureHandle();
+         Closing += OnClosing;
       }
 
       protected override void OnSourceInitialized( EventArgs e )
@@ -74,9 +76,10 @@ namespace DiscordAutoDrop
          }
       }
 
-      public void Dispose()
+      private void OnClosing( object sender, CancelEventArgs args )
       {
-         foreach ( var hotkeyId in _registeredHotkeys )
+         var registeredHotkeysFrozen = new List<int>( _registeredHotkeys );
+         foreach ( var hotkeyId in registeredHotkeysFrozen )
          {
             Unregister( hotkeyId );
          }
