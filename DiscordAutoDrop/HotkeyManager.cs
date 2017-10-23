@@ -55,7 +55,7 @@ namespace DiscordAutoDrop
       {
          id = (int)key + (int)modifier * 0x10000;
 
-         bool result = NativeMethods.RegisterHotKey( _hwnd, id, (uint)modifier, (uint)key );
+         bool result = NativeMethods.RegisterHotKey( _hwnd, id, (uint)modifier, (uint)KeyInterop.VirtualKeyFromKey( key ) );
          if ( result )
          {
             _registeredHotkeys.Add( id );

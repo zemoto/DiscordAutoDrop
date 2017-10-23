@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Forms;
 using DiscordAutoDrop.Utilities;
@@ -11,6 +12,7 @@ namespace DiscordAutoDrop
    {
       private readonly AutomationElement _discord;
       private readonly IInvokePattern _messageBoxLegacyPattern;
+      private readonly HotkeyManager _hotkeyManager = new HotkeyManager();
 
       public MainWindow()
       {
@@ -21,6 +23,11 @@ namespace DiscordAutoDrop
             Debug.Assert( discordFinder.Inititialize() );
             (_discord, _messageBoxLegacyPattern) = discordFinder.FindDiscord();
          }
+      }
+
+      protected override void OnClosed( EventArgs e )
+      {
+         _hotkeyManager?.Dispose();
       }
 
       private void OnButtonClick( object sender, RoutedEventArgs e )
