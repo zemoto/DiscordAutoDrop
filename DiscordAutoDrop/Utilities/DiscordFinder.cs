@@ -9,14 +9,23 @@ using Debug = System.Diagnostics.Debug;
 
 namespace DiscordAutoDrop.Utilities
 {
-   internal sealed class DiscordFinder
+   internal sealed class DiscordFinder : IDisposable
    {
       private bool _initialized;
       private readonly AutomationBase _automation = new UIA3Automation();
 
-      ~DiscordFinder()
+      private void Dispose( bool disposing )
       {
-         _automation?.Dispose();
+         if ( disposing )
+         {
+            _automation?.Dispose();
+         }
+      }
+
+      public void Dispose()
+      {
+         Dispose( true );
+         GC.SuppressFinalize( this );
       }
 
       public bool Inititialize()
@@ -36,7 +45,6 @@ namespace DiscordAutoDrop.Utilities
          Debug.Assert( _initialized );
 
          var processes = Process.GetProcessesByName( "discord" );
-
          foreach ( var process in processes )
          {
             if ( process.MainWindowHandle == IntPtr.Zero )
