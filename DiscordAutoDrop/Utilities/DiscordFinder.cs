@@ -1,49 +1,38 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using FlaUI.Core;
 using FlaUI.Core.AutomationElements.Infrastructure;
 using FlaUI.Core.Definitions;
 using FlaUI.Core.Patterns;
 using FlaUI.UIA3;
-using Debug = System.Diagnostics.Debug;
 
 namespace DiscordAutoDrop.Utilities
 {
    internal sealed class DiscordFinder : IDisposable
    {
-      private bool _initialized;
-      private readonly AutomationBase _automation = new UIA3Automation();
+      private AutomationBase _automation;
 
-      private void Dispose( bool disposing )
+      public void Initialize()
       {
-         if ( disposing )
+         if ( _automation == null )
          {
-            _automation?.Dispose();
+            _automation = new UIA3Automation();
          }
       }
 
       public void Dispose()
       {
-         Dispose( true );
-         GC.SuppressFinalize( this );
+         _automation?.Dispose();
       }
 
-      public bool Inititialize()
+      public async Task<AutomationElement> FindDiscordAsync()
       {
-         if ( !_initialized )
-         {
-            using ( var launcher = new InspectLauncher() )
-            {
-               _initialized = launcher.EnsureInspectLaunched();
-            }
-         }
-         return _initialized;
+         return await Task.Factory.StartNew( FindDiscord );
       }
 
-      public (AutomationElement discord, IInvokePattern invokePattern) FindDiscord()
+      private AutomationElement FindDiscord()
       {
-         Debug.Assert( _initialized );
-
          var processes = Process.GetProcessesByName( "discord" );
          foreach ( var process in processes )
          {
@@ -52,17 +41,17 @@ namespace DiscordAutoDrop.Utilities
                continue;
             }
 
-            var discord = _automation.FromHandle( process.MainWindowHandle );
-            var messageBox = SearchDiscordForMessageBox( discord );
-            if ( messageBox != null )
-            {
-               return (discord, messageBox);
-            }
+            return _automation.FromHandle( process.MainWindowHandle );
          }
-         return (null, null);
+         return null;
       }
 
-      private IInvokePattern SearchDiscordForMessageBox( AutomationElement discord )
+      public async Task<IInvokePattern> FindDiscordMessageBoxAsync( AutomationElement discord )
+      {
+         return await Task.Factory.StartNew( () => FindDiscordMessageBox( discord ) );
+      }
+
+      private IInvokePattern FindDiscordMessageBox( AutomationElement discord )
       {
          var editControls = discord.FindAll( TreeScope.Descendants, _automation.ConditionFactory.ByControlType( ControlType.Edit ) );
          foreach ( var editControl in editControls )

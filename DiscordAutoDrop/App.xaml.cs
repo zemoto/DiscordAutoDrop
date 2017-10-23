@@ -1,11 +1,18 @@
-﻿namespace DiscordAutoDrop
+﻿using System.Windows;
+
+namespace DiscordAutoDrop
 {
    public partial class App
    {
       public App()
       {
+         Startup += OnStartup;
+      }
+
+      private async void OnStartup( object sender, StartupEventArgs args )
+      {
          var main = new Main();
-         main.Startup();
+         await main.StartupAsync();
          main.ShowDialog();
       }
    }
