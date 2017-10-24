@@ -79,6 +79,7 @@
     <Compile Include="Splash\SplashScreen.xaml.cs">
       <DependentUpon>SplashScreen.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Utilities\DiscordDropRateLimiter.cs" />
     <Compile Include="Utilities\XmlSerializer.cs" />
     <Compile Include="ViewModels\DiscordCommandViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />

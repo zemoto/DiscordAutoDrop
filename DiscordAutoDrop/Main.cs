@@ -17,6 +17,7 @@ namespace DiscordAutoDrop
       private const string XmlFileName = "DiscordCommand.xml";
 
       private readonly XmlSerializer<ObservableCollection<DiscordCommandViewModel>> _serializer;
+      private readonly CommandRateLimiter _rateLimiter;
 
       private AutomationElement _discord;
       private IInvokePattern _messageBox;
@@ -29,6 +30,8 @@ namespace DiscordAutoDrop
       {
          var xmlFilePath = Path.Combine( Directory.GetCurrentDirectory(), XmlFileName );
          _serializer = new XmlSerializer<ObservableCollection<DiscordCommandViewModel>>( xmlFilePath );
+
+         _rateLimiter = new CommandRateLimiter( FireCommand );
       }
 
       ~Main()
@@ -104,7 +107,7 @@ namespace DiscordAutoDrop
          var command = _vm.DiscordCommands.FirstOrDefault( x => x.HotkeyId == e.HotkeyId );
          if ( command != null )
          {
-            FireCommand( command.DiscordCommand );
+            _rateLimiter.QueueCommand( command.DiscordCommand );
          }
       }
 
@@ -114,7 +117,7 @@ namespace DiscordAutoDrop
          var handle = _discord.Properties.NativeWindowHandle;
          using ( new WindowTemporaryForgrounder( handle ) )
          {
-            SendKeys.SendWait( $"!{command}" );
+            SendKeys.SendWait( command );
             SendKeys.SendWait( "{Enter}" );
          }
       }
