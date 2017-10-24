@@ -13,7 +13,7 @@
         Width="525"
         d:DataContext="{d:DesignInstance viewModels:MainViewModel}">
    <Grid>
-      <ItemsControl ItemsSource="{Binding DiscordCommands}"
+      <ItemsControl ItemsSource="{Binding DiscordDrop}"
                     VerticalAlignment="Center">
          <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
@@ -21,11 +21,11 @@
             </ItemsPanelTemplate>
          </ItemsControl.ItemsPanel>
          <ItemsControl.ItemTemplate>
-            <DataTemplate DataType="{x:Type viewModels:DiscordCommandViewModel}">
+            <DataTemplate DataType="{x:Type viewModels:DiscordDropViewModel}">
                <StackPanel Orientation="Horizontal">
                   <TextBox Width="80"
                            Height="24"
-                           Text="{Binding DiscordCommand, Mode=TwoWay}"
+                           Text="{Binding DiscordDrop, Mode=TwoWay}"
                            Margin="8,4"/>
                   <discordAutoDrop:HotkeyControl Hotkey="{Binding HotKey, Mode=TwoWay}"
                                                  Modifier="{Binding Modifier, Mode=TwoWay}"

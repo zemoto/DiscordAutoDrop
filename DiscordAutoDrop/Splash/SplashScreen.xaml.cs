@@ -10,7 +10,7 @@ namespace DiscordAutoDrop.Splash
       InitializingUIAutomation,
       FindingDiscord,
       FindingDiscordMessageBox,
-      LoadingSavedDiscordCommands,
+      LoadingSavedDiscordDrops,
       RegisteringSavedHotkeys
    }
 
@@ -23,7 +23,7 @@ namespace DiscordAutoDrop.Splash
          [LoadingTask.InitializingUIAutomation] = "Initializing UI Automation Search Trees...",
          [LoadingTask.FindingDiscord] = "Finding Discord window...",
          [LoadingTask.FindingDiscordMessageBox] = "Finding Discord message box...",
-         [LoadingTask.LoadingSavedDiscordCommands] = "Loading saved discord commands...",
+         [LoadingTask.LoadingSavedDiscordDrops] = "Loading saved discord drops...",
          [LoadingTask.RegisteringSavedHotkeys] = "Registering saved hotkeys..."
       }.ToImmutableDictionary();
 

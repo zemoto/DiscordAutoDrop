@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Text;
 // ReSharper disable InconsistentNaming
 
 namespace DiscordAutoDrop.Utilities
@@ -13,8 +12,6 @@ namespace DiscordAutoDrop.Utilities
          DoNotActivate = 0x0010,
          IgnoreMove = 0x0002,
          IgnoreResize = 0x0001,
-         ShowWindow = 0x0040,
-         HideWindow = 0x0080
       }
 
       public const int WM_HOTKEY = 0x0312;
@@ -32,14 +29,7 @@ namespace DiscordAutoDrop.Utilities
 
       [DllImport( "user32.dll" )]
       [return: MarshalAs( UnmanagedType.Bool )]
-      public static extern bool SetForegroundWindow( IntPtr hWnd );
-
-      [DllImport( "user32.dll" )]
-      [return: MarshalAs( UnmanagedType.Bool )]
       public static extern bool IsWindowVisible( IntPtr hWnd );
-
-      [DllImport( "user32.dll" )]
-      public static extern bool ShowWindow( IntPtr hWnd, int nCmdShow );
 
       [DllImport( "user32.dll" )]
       public static extern bool EnumDesktopWindows( IntPtr hDesktop, EnumDesktopWindowsDelegate lpfn, IntPtr lParam );

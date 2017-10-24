@@ -3,15 +3,15 @@ using System.Timers;
 
 namespace DiscordAutoDrop.Utilities
 {
-   internal sealed class CommandRateLimiter
+   internal sealed class DiscordDropRateLimiter
    {
       private readonly Action<string> _rateLimitedAction;
       private readonly Timer _timer;
 
-      private string _queuedCommand;
-      private readonly object _commandLock = new object();
+      private string _queuedDrop;
+      private readonly object _threadLock = new object();
 
-      public CommandRateLimiter( Action<string> rateLimitedAction )
+      public DiscordDropRateLimiter( Action<string> rateLimitedAction )
       {
          _rateLimitedAction = rateLimitedAction;
 
@@ -19,22 +19,22 @@ namespace DiscordAutoDrop.Utilities
          _timer.Elapsed += TimerTick;
       }
 
-      public void QueueCommand( string command )
+      public void EnqueueDrop( string drop )
       {
-         lock ( _commandLock )
+         lock ( _threadLock )
          {
             _timer.Stop();
-            _queuedCommand += $"!{command} ";
+            _queuedDrop += $"!{drop} ";
             _timer.Start();
          }
       }
 
       private void TimerTick( object sender, ElapsedEventArgs e )
       {
-         lock ( _commandLock )
+         lock ( _threadLock )
          {
-            _rateLimitedAction( _queuedCommand );
-            _queuedCommand = string.Empty;
+            _rateLimitedAction( _queuedDrop );
+            _queuedDrop = string.Empty;
             _timer.Stop();
          }
       }

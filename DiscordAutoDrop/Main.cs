@@ -14,10 +14,10 @@ namespace DiscordAutoDrop
 {
    internal sealed class Main
    {
-      private const string XmlFileName = "DiscordCommand.xml";
+      private const string XmlFileName = "DiscordDrops.xml";
 
-      private readonly XmlSerializer<ObservableCollection<DiscordCommandViewModel>> _serializer;
-      private readonly CommandRateLimiter _rateLimiter;
+      private readonly XmlSerializer<ObservableCollection<DiscordDropViewModel>> _serializer;
+      private readonly DiscordDropRateLimiter _rateLimiter;
 
       private AutomationElement _discord;
       private IInvokePattern _messageBox;
@@ -29,14 +29,14 @@ namespace DiscordAutoDrop
       public Main()
       {
          var xmlFilePath = Path.Combine( Directory.GetCurrentDirectory(), XmlFileName );
-         _serializer = new XmlSerializer<ObservableCollection<DiscordCommandViewModel>>( xmlFilePath );
+         _serializer = new XmlSerializer<ObservableCollection<DiscordDropViewModel>>( xmlFilePath );
 
-         _rateLimiter = new CommandRateLimiter( FireCommand );
+         _rateLimiter = new DiscordDropRateLimiter( FireDrop );
       }
 
       ~Main()
       {
-         _serializer.Serialize( _vm.DiscordCommands );
+         _serializer.Serialize( _vm.DiscordDrop );
       }
 
       public async Task StartupAsync()
@@ -65,22 +65,22 @@ namespace DiscordAutoDrop
             }
          }
 
-         splash.DisplayTask( LoadingTask.LoadingSavedDiscordCommands );
-         var commands = await Task.Factory.StartNew( _serializer.Deserialize );
+         splash.DisplayTask( LoadingTask.LoadingSavedDiscordDrops );
+         var drops = await Task.Factory.StartNew( _serializer.Deserialize );
       
          splash.DisplayTask( LoadingTask.RegisteringSavedHotkeys );
          _hotkeyManager = new HotkeyManager();
          _hotkeyManager.HotkeyFired += OnHotkeyFired;
          _vm = new MainViewModel( _hotkeyManager );
 
-         if ( commands != null )
+         if ( drops != null )
          {
-            foreach ( var command in commands )
+            foreach ( var drop in drops )
             {
-               if ( _hotkeyManager.TryRegister( command.HotKey, command.Modifier, out int id ) )
+               if ( _hotkeyManager.TryRegister( drop.HotKey, drop.Modifier, out int id ) )
                {
-                  command.HotkeyId = id;
-                  _vm.DiscordCommands.Add( command );
+                  drop.HotkeyId = id;
+                  _vm.DiscordDrop.Add( drop );
                }
             }
          }
@@ -89,9 +89,9 @@ namespace DiscordAutoDrop
 
       public void ShowDialog()
       {
-         if ( !_vm.DiscordCommands.Any() )
+         if ( !_vm.DiscordDrop.Any() )
          {
-            _vm.DiscordCommands.Add( new DiscordCommandViewModel() );
+            _vm.DiscordDrop.Add( new DiscordDropViewModel() );
          }
 
          _window = new MainWindow
@@ -104,20 +104,20 @@ namespace DiscordAutoDrop
 
       private void OnHotkeyFired( object sender, HotkeyFiredEventArgs e )
       {
-         var command = _vm.DiscordCommands.FirstOrDefault( x => x.HotkeyId == e.HotkeyId );
-         if ( command != null )
+         var dropVm = _vm.DiscordDrop.FirstOrDefault( x => x.HotkeyId == e.HotkeyId );
+         if ( dropVm != null )
          {
-            _rateLimiter.QueueCommand( command.DiscordCommand );
+            _rateLimiter.EnqueueDrop( dropVm.DiscordDrop );
          }
       }
 
-      private void FireCommand( string command )
+      private void FireDrop( string drop )
       {
          _messageBox.Invoke();
          var handle = _discord.Properties.NativeWindowHandle;
          using ( new WindowTemporaryForgrounder( handle ) )
          {
-            SendKeys.SendWait( command );
+            SendKeys.SendWait( drop );
             SendKeys.SendWait( "{Enter}" );
          }
       }

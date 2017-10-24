@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace DiscordAutoDrop.Utilities
 {
@@ -22,10 +23,16 @@ namespace DiscordAutoDrop.Utilities
          }
          else if ( File.Exists( InspectFilePath ) )
          {
-            var proc = new Process();
-            proc.StartInfo.FileName = InspectFilePath;
-            proc.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            var proc = new Process
+            {
+               StartInfo =
+               {
+                  FileName = InspectFilePath,
+                  WindowStyle = ProcessWindowStyle.Hidden
+               }
+            };
             proc.Start();
+            Thread.Sleep( TimeSpan.FromSeconds( 1 ) );
 
             launched = true;
          }

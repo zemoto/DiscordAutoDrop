@@ -69,9 +69,7 @@ namespace DiscordAutoDrop
       {
          if ( _registeredHotkeys.Contains( id ) )
          {
-            var result = NativeMethods.UnregisterHotKey( _hwnd, id );
-            Debug.Assert( result );
-
+            Debug.Assert( NativeMethods.UnregisterHotKey( _hwnd, id ) );
             _registeredHotkeys.Remove( id );
          }
       }

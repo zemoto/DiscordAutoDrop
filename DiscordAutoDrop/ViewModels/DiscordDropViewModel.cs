@@ -3,7 +3,7 @@ using DiscordAutoDrop.MVVM;
 
 namespace DiscordAutoDrop.ViewModels
 {
-   public sealed class DiscordCommandViewModel : ViewModelBase
+   public sealed class DiscordDropViewModel : ViewModelBase
    {
       private int _hotkeyId;
       public int HotkeyId
@@ -26,11 +26,11 @@ namespace DiscordAutoDrop.ViewModels
          set => SetProperty( ref _modifier, value );
       }
 
-      private string _discordCommand;
-      public string DiscordCommand
+      private string _discordDrop;
+      public string DiscordDrop
       {
-         get => _discordCommand;
-         set => SetProperty( ref _discordCommand, value );
+         get => _discordDrop;
+         set => SetProperty( ref _discordDrop, value );
       }
    }
 }
