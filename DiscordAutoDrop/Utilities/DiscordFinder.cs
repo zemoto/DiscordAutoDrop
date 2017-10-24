@@ -41,6 +41,11 @@ namespace DiscordAutoDrop.Utilities
                continue;
             }
 
+            if ( NativeMethods.IsIconic( process.MainWindowHandle ) )
+            {
+               NativeMethods.ShowWindow( process.MainWindowHandle, 9 /*WM_RESTORE*/ );
+            }
+
             return _automation.FromHandle( process.MainWindowHandle );
          }
          return null;

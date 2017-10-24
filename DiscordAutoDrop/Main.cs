@@ -119,6 +119,7 @@ namespace DiscordAutoDrop
          {
             SendKeys.SendWait( drop );
             SendKeys.SendWait( "{Enter}" );
+            SendKeys.Flush();
          }
       }
    }
