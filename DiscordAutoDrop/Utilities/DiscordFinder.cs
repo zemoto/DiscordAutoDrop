@@ -46,19 +46,19 @@ namespace DiscordAutoDrop.Utilities
          return null;
       }
 
-      public async Task<IInvokePattern> FindDiscordMessageBoxAsync( AutomationElement discord )
+      public async Task<ILegacyIAccessiblePattern> FindDiscordMessageBoxAsync( AutomationElement discord )
       {
          return await Task.Factory.StartNew( () => FindDiscordMessageBox( discord ) );
       }
 
-      private IInvokePattern FindDiscordMessageBox( AutomationElement discord )
+      private ILegacyIAccessiblePattern FindDiscordMessageBox( AutomationElement discord )
       {
          var editControls = discord.FindAll( TreeScope.Descendants, _automation.ConditionFactory.ByControlType( ControlType.Edit ) );
          foreach ( var editControl in editControls )
          {
-            if ( editControl.Name.Contains( "Message" ) && editControl.Patterns.Invoke.IsSupported )
+            if ( editControl.Name.Contains( "Message" ) && editControl.Patterns.LegacyIAccessible.IsSupported )
             {
-               return editControl.Patterns.Invoke.Pattern;
+               return editControl.Patterns.LegacyIAccessible.Pattern;
             }
          }
          return null;

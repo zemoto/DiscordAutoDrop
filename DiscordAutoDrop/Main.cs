@@ -20,7 +20,7 @@ namespace DiscordAutoDrop
       private readonly DiscordDropRateLimiter _rateLimiter;
 
       private AutomationElement _discord;
-      private IInvokePattern _messageBox;
+      private ILegacyIAccessiblePattern _messageBox;
 
       private MainWindow _window;
       private MainViewModel _vm;
@@ -113,7 +113,7 @@ namespace DiscordAutoDrop
 
       private void FireDrop( string drop )
       {
-         _messageBox.Invoke();
+         _messageBox.DoDefaultAction();
          var handle = _discord.Properties.NativeWindowHandle;
          using ( new WindowTemporaryForgrounder( handle ) )
          {
