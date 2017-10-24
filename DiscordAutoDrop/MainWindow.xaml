@@ -6,15 +6,22 @@
         xmlns:viewModels="clr-namespace:DiscordAutoDrop.ViewModels"
         xmlns:discordAutoDrop="clr-namespace:DiscordAutoDrop"
         mc:Ignorable="d"
-        Title="MainWindow" 
+        Title="MainWindow"
         Name="RootControl"
         WindowStartupLocation="CenterScreen"
-        Height="350" 
+        Height="350"
         Width="525"
         d:DataContext="{d:DesignInstance viewModels:MainViewModel}">
    <Grid>
-      <ItemsControl ItemsSource="{Binding DiscordDrop}"
-                    VerticalAlignment="Center">
+      <Grid.RowDefinitions>
+         <RowDefinition Height="*" />
+         <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+      <ItemsControl Grid.Row="0"
+                    Margin="8,8,8,0"
+                    ItemsSource="{Binding DiscordDrops}"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top">
          <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
                <StackPanel />
@@ -31,9 +38,22 @@
                                                  Modifier="{Binding Modifier, Mode=TwoWay}"
                                                  HotkeyId="{Binding HotkeyId, Mode=TwoWay}"
                                                  Manager="{Binding DataContext.Manager, ElementName=RootControl}" />
+                  <Button Width="24"
+                          Height="24"
+                          Margin="8"
+                          Content="-"
+                          Command="{Binding DataContext.RemoveDropCommand, ElementName=RootControl}"
+                          CommandParameter="{Binding}" />
                </StackPanel>
             </DataTemplate>
          </ItemsControl.ItemTemplate>
       </ItemsControl>
+
+      <Button Grid.Row="1" 
+              Width="24"
+              Height="24"
+              Margin="8"
+              Content="+"
+              Command="{Binding AddDropCommand}" />
    </Grid>
 </Window>

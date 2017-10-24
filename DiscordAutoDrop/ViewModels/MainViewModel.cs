@@ -12,6 +12,9 @@ namespace DiscordAutoDrop.ViewModels
 
       public HotkeyManager Manager { get; }
 
-      public ObservableCollection<DiscordDropViewModel> DiscordDrop { get; } = new ObservableCollection<DiscordDropViewModel>();
+      public ObservableCollection<DiscordDropViewModel> DiscordDrops { get; } = new ObservableCollection<DiscordDropViewModel>();
+
+      public RelayCommand AddDropCommand { get; set; }
+      public RelayCommand<DiscordDropViewModel> RemoveDropCommand { get; set; }
    }
 }

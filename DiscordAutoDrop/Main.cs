@@ -1,9 +1,11 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Input;
+using DiscordAutoDrop.MVVM;
 using DiscordAutoDrop.Splash;
 using DiscordAutoDrop.Utilities;
 using DiscordAutoDrop.ViewModels;
@@ -16,7 +18,7 @@ namespace DiscordAutoDrop
    {
       private const string XmlFileName = "DiscordDrops.xml";
 
-      private readonly XmlSerializer<ObservableCollection<DiscordDropViewModel>> _serializer;
+      private readonly XmlSerializer<IEnumerable<DiscordDropViewModel>> _serializer;
       private readonly DiscordDropRateLimiter _rateLimiter;
 
       private AutomationElement _discord;
@@ -29,14 +31,14 @@ namespace DiscordAutoDrop
       public Main()
       {
          var xmlFilePath = Path.Combine( Directory.GetCurrentDirectory(), XmlFileName );
-         _serializer = new XmlSerializer<ObservableCollection<DiscordDropViewModel>>( xmlFilePath );
+         _serializer = new XmlSerializer<IEnumerable<DiscordDropViewModel>>( xmlFilePath );
 
          _rateLimiter = new DiscordDropRateLimiter( FireDrop );
       }
 
       ~Main()
       {
-         _serializer.Serialize( _vm.DiscordDrop );
+         _serializer.Serialize( _vm.DiscordDrops.Where( x => x.HotKey != Key.None && !string.IsNullOrWhiteSpace( x.DiscordDrop ) ) );
       }
 
       public async Task StartupAsync()
@@ -71,7 +73,12 @@ namespace DiscordAutoDrop
          splash.DisplayTask( LoadingTask.RegisteringSavedHotkeys );
          _hotkeyManager = new HotkeyManager();
          _hotkeyManager.HotkeyFired += OnHotkeyFired;
-         _vm = new MainViewModel( _hotkeyManager );
+
+         _vm = new MainViewModel( _hotkeyManager )
+         {
+            AddDropCommand = new RelayCommand( () => _vm.DiscordDrops.Add( new DiscordDropViewModel() ) ),
+            RemoveDropCommand = new RelayCommand<DiscordDropViewModel>( drop => _vm.DiscordDrops.Remove( drop ) )
+         };
 
          if ( drops != null )
          {
@@ -80,7 +87,7 @@ namespace DiscordAutoDrop
                if ( _hotkeyManager.TryRegister( drop.HotKey, drop.Modifier, out int id ) )
                {
                   drop.HotkeyId = id;
-                  _vm.DiscordDrop.Add( drop );
+                  _vm.DiscordDrops.Add( drop );
                }
             }
          }
@@ -89,11 +96,6 @@ namespace DiscordAutoDrop
 
       public void ShowDialog()
       {
-         if ( !_vm.DiscordDrop.Any() )
-         {
-            _vm.DiscordDrop.Add( new DiscordDropViewModel() );
-         }
-
          _window = new MainWindow
          {
             DataContext = _vm
@@ -104,7 +106,7 @@ namespace DiscordAutoDrop
 
       private void OnHotkeyFired( object sender, HotkeyFiredEventArgs e )
       {
-         var dropVm = _vm.DiscordDrop.FirstOrDefault( x => x.HotkeyId == e.HotkeyId );
+         var dropVm = _vm.DiscordDrops.FirstOrDefault( x => x.HotkeyId == e.HotkeyId );
          if ( dropVm != null )
          {
             _rateLimiter.EnqueueDrop( dropVm.DiscordDrop );
