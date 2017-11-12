@@ -6,11 +6,12 @@ namespace DiscordAutoDrop.Splash
    public enum LoadingTask
    {
       Initializing,
+      LoadingSettings,
+      LoggingIn,
       LaunchingInspect,
-      InitializingUIAutomation,
+      InitializingUiAutomation,
       FindingDiscord,
       FindingDiscordMessageBox,
-      LoadingSavedDiscordDrops,
       RegisteringSavedHotkeys
    }
 
@@ -19,11 +20,12 @@ namespace DiscordAutoDrop.Splash
       private readonly ImmutableDictionary<LoadingTask, string> _stepToTaskDictionary = new Dictionary<LoadingTask, string>
       {
          [LoadingTask.Initializing] = "Initializing...",
+         [LoadingTask.LoadingSettings] = "Loading Settings...",
+         [LoadingTask.LoggingIn] = "Logging in...",
          [LoadingTask.LaunchingInspect] = "Injecting UI Automation DLLs...",
-         [LoadingTask.InitializingUIAutomation] = "Initializing UI Automation Search Trees...",
+         [LoadingTask.InitializingUiAutomation] = "Initializing UI Automation Search Trees...",
          [LoadingTask.FindingDiscord] = "Finding Discord window...",
          [LoadingTask.FindingDiscordMessageBox] = "Finding Discord message box...",
-         [LoadingTask.LoadingSavedDiscordDrops] = "Loading saved discord drops...",
          [LoadingTask.RegisteringSavedHotkeys] = "Registering saved hotkeys..."
       }.ToImmutableDictionary();
 

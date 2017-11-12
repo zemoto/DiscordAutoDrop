@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,9 +15,9 @@ namespace DiscordAutoDrop
 {
    internal sealed class Main
    {
-      private const string XmlFileName = "DiscordDrops.xml";
+      private const string XmlFileName = "DiscordAutoDropSettings.xml";
 
-      private readonly XmlSerializer<IEnumerable<DiscordDropViewModel>> _serializer;
+      private readonly XmlSerializer<Settings> _serializer;
       private readonly DiscordDropRateLimiter _rateLimiter;
 
       private AutomationElement _discord;
@@ -27,24 +26,59 @@ namespace DiscordAutoDrop
       private MainWindow _window;
       private MainViewModel _vm;
       private HotkeyManager _hotkeyManager;
+      private Settings _settings;
 
       public Main()
       {
          var xmlFilePath = Path.Combine( Directory.GetCurrentDirectory(), XmlFileName );
-         _serializer = new XmlSerializer<IEnumerable<DiscordDropViewModel>>( xmlFilePath );
+         _serializer = new XmlSerializer<Settings>( xmlFilePath );
 
          _rateLimiter = new DiscordDropRateLimiter( FireDrop );
       }
 
       ~Main()
       {
-         _serializer.Serialize( _vm.DiscordDrops.Where( x => x.HotKey != Key.None && !string.IsNullOrWhiteSpace( x.DiscordDrop ) ) );
+         _settings.DiscordDrops = _vm.DiscordDrops.Where( x => x.HotKey != Key.None && !string.IsNullOrWhiteSpace( x.DiscordDrop ) ).ToList();
+         _serializer.Serialize( _settings );
       }
 
-      public async Task StartupAsync()
+      public async Task<bool> StartupAsync()
       {
          var splash = new SplashScreen();
          splash.Show();
+
+         splash.DisplayTask( LoadingTask.LoadingSettings );
+
+         _vm = new MainViewModel( _hotkeyManager )
+         {
+            AddDropCommand = new RelayCommand( () => _vm.DiscordDrops.Add( new DiscordDropViewModel() ) ),
+            RemoveDropCommand = new RelayCommand<DiscordDropViewModel>( drop => _vm.DiscordDrops.Remove( drop ) )
+         };
+
+         _settings = await Task.Factory.StartNew( _serializer.Deserialize );
+         if ( _settings != null )
+         {
+            foreach ( var drop in _settings.DiscordDrops )
+            {
+               if ( _hotkeyManager.TryRegister( drop.HotKey, drop.Modifier, out int id ) )
+               {
+                  drop.HotkeyId = id;
+                  _vm.DiscordDrops.Add( drop );
+               }
+            }
+         }
+         else
+         {
+            _settings = new Settings();
+         }
+
+         splash.DisplayTask( LoadingTask.LoggingIn );
+         var authManager = new AuthenticationManager();
+         if ( !await authManager.SignInAsync( _settings ) )
+         {
+            splash.Close();
+            return false;
+         }
 
          using ( var inspectLauncher = new InspectLauncher() )
          {
@@ -54,7 +88,7 @@ namespace DiscordAutoDrop
 
          using ( var discordFinder = new DiscordFinder() )
          {
-            splash.DisplayTask( LoadingTask.InitializingUIAutomation );
+            splash.DisplayTask( LoadingTask.InitializingUiAutomation );
             await Task.Factory.StartNew( discordFinder.Initialize );
 
             splash.DisplayTask( LoadingTask.FindingDiscord );
@@ -67,31 +101,12 @@ namespace DiscordAutoDrop
             }
          }
 
-         splash.DisplayTask( LoadingTask.LoadingSavedDiscordDrops );
-         var drops = await Task.Factory.StartNew( _serializer.Deserialize );
-      
          splash.DisplayTask( LoadingTask.RegisteringSavedHotkeys );
          _hotkeyManager = new HotkeyManager();
          _hotkeyManager.HotkeyFired += OnHotkeyFired;
 
-         _vm = new MainViewModel( _hotkeyManager )
-         {
-            AddDropCommand = new RelayCommand( () => _vm.DiscordDrops.Add( new DiscordDropViewModel() ) ),
-            RemoveDropCommand = new RelayCommand<DiscordDropViewModel>( drop => _vm.DiscordDrops.Remove( drop ) )
-         };
-
-         if ( drops != null )
-         {
-            foreach ( var drop in drops )
-            {
-               if ( _hotkeyManager.TryRegister( drop.HotKey, drop.Modifier, out int id ) )
-               {
-                  drop.HotkeyId = id;
-                  _vm.DiscordDrops.Add( drop );
-               }
-            }
-         }
          splash.Close();
+         return true;
       }
 
       public void ShowDialog()
