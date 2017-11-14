@@ -16,7 +16,7 @@ namespace DiscordAutoDrop
       private const string RedirectUrl = "http://localhost/";
       private const string TokenUrl = "https://discordapp.com/api/oauth2/token";
 
-      private readonly string _authorizationCodeUrl = $"https://discordapp.com/api/oauth2/authorize?response_type=code&client_id={ClientId}&scope=rpc.api&redirect_url={RedirectUrl}";
+      private readonly string _authorizationCodeUrl = $"https://discordapp.com/api/oauth2/authorize?response_type=code&client_id={ClientId}&scope=bot";
 
       public async Task<bool> SignInAsync( Settings settings )
       {
