@@ -9,6 +9,7 @@ using DiscordAutoDrop.Splash;
 using DiscordAutoDrop.Utilities;
 using DiscordAutoDrop.ViewModels;
 using System;
+using System.Diagnostics;
 using System.Windows;
 using System.Web;
 
@@ -160,6 +161,7 @@ namespace DiscordAutoDrop
 
       private async void FireDrop( string drop )
       {
+         Debug.WriteLine( $"Sending Drop: {drop}" );
          var channel = GetCurrentChannel();
          if ( channel != null )
          {
