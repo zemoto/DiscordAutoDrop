@@ -15,7 +15,7 @@ namespace DiscordAutoDrop.Utilities
       {
          _rateLimitedAction = rateLimitedAction;
 
-         _timer = new Timer( 500 );
+         _timer = new Timer( 1000 );
          _timer.Elapsed += TimerTick;
       }
 
@@ -24,7 +24,7 @@ namespace DiscordAutoDrop.Utilities
          lock ( _threadLock )
          {
             _timer.Stop();
-            _queuedDrop += $"!{drop} ";
+            _queuedDrop += $"{drop} ";
             _timer.Start();
          }
       }

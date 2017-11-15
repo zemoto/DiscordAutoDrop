@@ -168,7 +168,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AuthenticationManager.cs" />
     <Compile Include="HotkeyControl.xaml.cs">
       <DependentUpon>HotkeyControl.xaml</DependentUpon>
     </Compile>
@@ -177,6 +176,9 @@
     <Compile Include="Settings.cs" />
     <Compile Include="Splash\SplashScreen.xaml.cs">
       <DependentUpon>SplashScreen.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserTokenPrompt.xaml.cs">
+      <DependentUpon>UserTokenPrompt.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utilities\DiscordDropRateLimiter.cs" />
     <Compile Include="Utilities\XmlSerializer.cs" />
@@ -202,6 +204,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Splash\SplashScreen.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserTokenPrompt.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

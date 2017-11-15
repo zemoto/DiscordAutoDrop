@@ -1,9 +1,6 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Windows.Input;
 using Discord;
 using Discord.WebSocket;
@@ -11,6 +8,9 @@ using DiscordAutoDrop.MVVM;
 using DiscordAutoDrop.Splash;
 using DiscordAutoDrop.Utilities;
 using DiscordAutoDrop.ViewModels;
+using System;
+using System.Windows;
+using System.Web;
 
 namespace DiscordAutoDrop
 {
@@ -38,24 +38,28 @@ namespace DiscordAutoDrop
 
       ~Main()
       {
+         _hotkeyManager.HotkeyFired -= OnHotkeyFired;
          _settings.DiscordDrops = _vm.DiscordDrops.Where( x => x.HotKey != Key.None && !string.IsNullOrWhiteSpace( x.DiscordDrop ) ).ToList();
          _serializer.Serialize( _settings );
       }
 
       public async Task<bool> StartupAsync()
       {
-         var splash = new SplashScreen();
+         var splash = new Splash.SplashScreen();
          splash.Show();
 
-         splash.DisplayTask( LoadingTask.LoadingSettings );
-
+         _hotkeyManager = new HotkeyManager();
+         _hotkeyManager.HotkeyFired += OnHotkeyFired;
          _vm = new MainViewModel( _hotkeyManager )
          {
             AddDropCommand = new RelayCommand( () => _vm.DiscordDrops.Add( new DiscordDropViewModel() ) ),
             RemoveDropCommand = new RelayCommand<DiscordDropViewModel>( drop => _vm.DiscordDrops.Remove( drop ) )
          };
 
+         splash.DisplayTask( LoadingTask.LoadingSettings );
          _settings = await Task.Factory.StartNew( _serializer.Deserialize );
+
+         splash.DisplayTask( LoadingTask.RegisteringSavedHotkeys );
          if ( _settings != null )
          {
             foreach ( var drop in _settings.DiscordDrops )
@@ -72,13 +76,41 @@ namespace DiscordAutoDrop
             _settings = new Settings();
          }
 
-         splash.DisplayTask( LoadingTask.LoggingIn );
-         _client = new DiscordSocketClient();
-         _client.Connected += OnConnected;
-         await _client.LoginAsync( TokenType.User, "MjE5Mjg1MjcxOTE1NjU5MjY0.DOkyvA.r8DNTAGvmtEreK84O5heJKUh98c" );
-         await _client.StartAsync();
+         splash.DisplayTask( LoadingTask.LaunchingSelfBot );
+         while ( true )
+         {
+            if ( string.IsNullOrEmpty( _settings.UserToken ) )
+            {
+               var prompt = new UserTokenPrompt { Owner = splash };
+               if ( prompt.ShowDialog() != true )
+               {
+                  return false;
+               }
+               _settings.UserToken = prompt.UserToken;
+            }
+            try
+            {
+               _client = new DiscordSocketClient();
+               await _client.LoginAsync( TokenType.User, _settings.UserToken );
+               await _client.StartAsync();
+               _settings.UserToken = _settings.UserToken;
+               break;
+            }
+            catch ( Exception ex )
+            {
+               _settings.UserToken = string.Empty;
+               switch ( ex )
+               {
+                  case HttpException _:
+                     MessageBox.Show( "Could not start self-bot with given token" );
+                     break;
+                  case FormatException _:
+                     MessageBox.Show( "Token format is invalid" );
+                     break;
+               }
+            }
+         }
 
-         splash.DisplayTask( LoadingTask.RegisteringSavedHotkeys );
          _hotkeyManager = new HotkeyManager();
          _hotkeyManager.HotkeyFired += OnHotkeyFired;
 
@@ -86,37 +118,17 @@ namespace DiscordAutoDrop
          return true;
       }
 
-      private async Task OnConnected()
-      {
-         var user = _client.CurrentUser;
-         try
-         {
-            var channel = GetCurrentChannel();
-            var chan = _client.GetChannel( channel.Id ) as SocketTextChannel;
-            await chan.SendMessageAsync( "PANIC" );
-
-         }
-         catch ( Exception e )
-         {
-            Console.WriteLine( e );
-            throw;
-         }
-      }
-
-      private SocketGuildChannel GetCurrentChannel()
+      private SocketTextChannel GetCurrentChannel()
       {
          var currentUser = _client.CurrentUser;
-         
+
          foreach ( var guild in _client.Guilds )
          {
             foreach ( var channel in guild.Channels )
             {
-               foreach ( var user in channel.Users )
+               if ( channel.Users.Any( x => x.Id == currentUser.Id && x.VoiceChannel != null ) )
                {
-                  if ( user.Id == currentUser.Id && user.VoiceChannel != null )
-                  {
-                     return channel;
-                  }
+                  return channel as SocketTextChannel;
                }
             }
          }
@@ -142,9 +154,13 @@ namespace DiscordAutoDrop
          }
       }
 
-      private void FireDrop( string drop )
+      private async void FireDrop( string drop )
       {
-         throw new NotImplementedException();
+         var channel = GetCurrentChannel();
+         if ( channel != null )
+         {
+            await channel.SendMessageAsync( $"!{drop}" );
+         }
       }
    }
 }

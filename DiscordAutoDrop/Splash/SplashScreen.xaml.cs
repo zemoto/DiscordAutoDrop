@@ -7,19 +7,19 @@ namespace DiscordAutoDrop.Splash
    {
       Initializing,
       LoadingSettings,
-      LoggingIn,
-      RegisteringSavedHotkeys
+      RegisteringSavedHotkeys,
+      LaunchingSelfBot
    }
 
    public partial class SplashScreen
    {
-      private readonly ImmutableDictionary<LoadingTask, string> _stepToTaskDictionary = new Dictionary<LoadingTask, string>
+      private readonly Dictionary<LoadingTask, string> _stepToTaskDictionary = new Dictionary<LoadingTask, string>
       {
          [LoadingTask.Initializing] = "Initializing...",
          [LoadingTask.LoadingSettings] = "Loading Settings...",
-         [LoadingTask.LoggingIn] = "Logging in...",
-         [LoadingTask.RegisteringSavedHotkeys] = "Registering saved hotkeys..."
-      }.ToImmutableDictionary();
+         [LoadingTask.RegisteringSavedHotkeys] = "Registering saved hotkeys...",
+         [LoadingTask.LaunchingSelfBot] = "Launching Self-Bot..."
+      };
 
       public SplashScreen()
       {

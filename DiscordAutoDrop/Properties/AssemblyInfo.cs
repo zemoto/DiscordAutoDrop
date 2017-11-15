@@ -5,7 +5,7 @@ using System.Windows;
 [assembly: AssemblyTitle( "DiscordAutoDrop" )]
 [assembly: AssemblyDescription( "" )]
 [assembly: AssemblyConfiguration( "" )]
-[assembly: AssemblyCompany( "" )]
+[assembly: AssemblyCompany( "Zemo Inc." )]
 [assembly: AssemblyProduct( "DiscordAutoDrop" )]
 [assembly: AssemblyCopyright( "Copyright ©  2017" )]
 [assembly: AssemblyTrademark( "" )]
