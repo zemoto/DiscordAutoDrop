@@ -24,7 +24,7 @@ namespace DiscordAutoDrop.Utilities
          lock ( _threadLock )
          {
             _timer.Stop();
-            _queuedDrop += $"{drop} ";
+            _queuedDrop += $"!{drop} ";
             _timer.Start();
          }
       }

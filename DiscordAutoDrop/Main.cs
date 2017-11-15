@@ -124,13 +124,17 @@ namespace DiscordAutoDrop
 
          foreach ( var guild in _client.Guilds )
          {
-            foreach ( var channel in guild.Channels )
+            if ( guild.Users.Any( x => x.Id == currentUser.Id && x.VoiceChannel != null ) )
             {
-               if ( channel.Users.Any( x => x.Id == currentUser.Id && x.VoiceChannel != null ) )
+               foreach ( var channel in guild.Channels )
                {
-                  return channel as SocketTextChannel;
+                  if ( channel is SocketTextChannel && channel.Users.Any( x => x.DiscriminatorValue == 8428 && x.Username == "buster" ) )
+                  {
+                     return channel as SocketTextChannel;
+                  }
                }
             }
+            
          }
          return null;
       }
@@ -159,7 +163,7 @@ namespace DiscordAutoDrop
          var channel = GetCurrentChannel();
          if ( channel != null )
          {
-            await channel.SendMessageAsync( $"!{drop}" );
+            await channel.SendMessageAsync( drop );
          }
       }
    }
