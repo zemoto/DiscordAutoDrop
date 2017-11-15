@@ -6,19 +6,28 @@
         mc:Ignorable="d"
         ResizeMode="NoResize"
         WindowStyle="None"
-        Height="290" 
-        Width="480"
+        Height="310"
+        Width="500"
+        AllowsTransparency="True"
+        Background="Transparent"
         WindowStartupLocation="CenterScreen">
-   <Grid>
+   <Grid Margin="10"
+         Background="White">
+      <Grid.Effect>
+         <DropShadowEffect BlurRadius="8"
+                           ShadowDepth="2"
+                           Direction="270"
+                           Opacity="0.45" />
+      </Grid.Effect>
       <Grid.RowDefinitions>
          <RowDefinition Height="Auto" />
          <RowDefinition Height="*" />
       </Grid.RowDefinitions>
-      <Image Grid.Row="0" 
+      <Image Grid.Row="0"
              Source="/DiscordAutoDrop;component/Resources/Splash.jpg"
              Stretch="Uniform" />
-      <TextBlock Name="SplashLabel" 
-                 Grid.Row="1" 
+      <TextBlock Name="SplashLabel"
+                 Grid.Row="1"
                  HorizontalAlignment="Left"
                  VerticalAlignment="Center"
                  FontSize="14"

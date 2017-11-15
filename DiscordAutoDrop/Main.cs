@@ -28,7 +28,6 @@ namespace DiscordAutoDrop
       private HotkeyManager _hotkeyManager;
       private Settings _settings;
 
-
       public Main()
       {
          var xmlFilePath = Path.Combine( Directory.GetCurrentDirectory(), XmlFileName );
@@ -64,10 +63,10 @@ namespace DiscordAutoDrop
          };
 
          splash.DisplayTask( LoadingTask.LoadingSettings );
-         _settings = await Task.Factory.StartNew( _serializer.Deserialize );
+         _settings = await Task.Factory.StartNew( _serializer.Deserialize ) ?? new Settings();
 
          splash.DisplayTask( LoadingTask.RegisteringSavedHotkeys );
-         if ( _settings != null )
+         if ( _settings?.DiscordDrops != null )
          {
             foreach ( var drop in _settings.DiscordDrops )
             {
@@ -77,10 +76,6 @@ namespace DiscordAutoDrop
                   _vm.DiscordDrops.Add( drop );
                }
             }
-         }
-         else
-         {
-            _settings = new Settings();
          }
 
          splash.DisplayTask( LoadingTask.LaunchingSelfBot );

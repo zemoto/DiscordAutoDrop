@@ -4,27 +4,24 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Input User Token for Self-Bot" 
+        Title="Input User Token for Self-Bot"
         SizeToContent="Height"
         Width="300"
+        WindowStyle="ToolWindow"
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False">
-    <StackPanel>
-        <TextBlock Text="User Token:"
-                   Margin="8" />
-        <TextBox Name="TokenTextBlock" 
-                 Margin="8,0"
-                 MaxLines="1"
-                 MaxLength="70" />
-        <StackPanel Margin="8"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Right">
-            <Button Content="Cancel" 
-                    Margin="0,0,4,0"
-                    Click="OnCancel" />
-            <Button Content="Ok"  
-                    Margin="4,0,0,0"
-                    Click="OnOk" />
-        </StackPanel>
-    </StackPanel>
+   <StackPanel>
+      <TextBlock Text="User Token:"
+                 Margin="8" />
+      <TextBox Name="TokenTextBlock"
+               Margin="8,0"
+               MaxLines="1"
+               MaxLength="70" />
+      <Button Content="OK"
+              Click="OnOk"
+              Margin="8"
+              HorizontalAlignment="Right"
+              Width="60"
+              Padding="4,0" />
+   </StackPanel>
 </Window>

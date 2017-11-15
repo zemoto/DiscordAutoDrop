@@ -11,11 +11,6 @@ namespace DiscordAutoDrop.Windows
          InitializeComponent();
       }
 
-      private void OnCancel( object sender, RoutedEventArgs e )
-      {
-         DialogResult = false;
-      }
-
       private void OnOk( object sender, RoutedEventArgs e )
       {
          UserToken = TokenTextBlock.Text;
