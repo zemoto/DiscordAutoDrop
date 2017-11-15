@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 
-namespace DiscordAutoDrop
+namespace DiscordAutoDrop.Windows
 {
    public partial class HotkeyControl
    {

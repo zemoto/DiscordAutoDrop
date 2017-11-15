@@ -5,7 +5,7 @@ using System.Windows.Input;
 using Discord;
 using Discord.WebSocket;
 using DiscordAutoDrop.MVVM;
-using DiscordAutoDrop.Splash;
+using DiscordAutoDrop.Windows;
 using DiscordAutoDrop.Utilities;
 using DiscordAutoDrop.ViewModels;
 using System;
@@ -15,26 +15,26 @@ using System.Web;
 
 namespace DiscordAutoDrop
 {
-   internal sealed class Main
+   internal sealed class Main : IDisposable
    {
       private const string XmlFileName = "DiscordAutoDropSettings.xml";
 
       private readonly XmlSerializer<Settings> _serializer;
-      private readonly DiscordDropRateLimiter _rateLimiter;
+      private readonly DiscordDropRateLimiter _dropLimiter;
+      private readonly DiscordSocketClient _client = new DiscordSocketClient();
 
       private MainWindow _window;
       private MainViewModel _vm;
       private HotkeyManager _hotkeyManager;
       private Settings _settings;
 
-      private DiscordSocketClient _client;
 
       public Main()
       {
          var xmlFilePath = Path.Combine( Directory.GetCurrentDirectory(), XmlFileName );
          _serializer = new XmlSerializer<Settings>( xmlFilePath );
 
-         _rateLimiter = new DiscordDropRateLimiter( FireDrop );
+         _dropLimiter = new DiscordDropRateLimiter( FireDrop );
       }
 
       ~Main()
@@ -44,9 +44,15 @@ namespace DiscordAutoDrop
          _serializer.Serialize( _settings );
       }
 
+      public void Dispose()
+      {
+         _client.Dispose();
+         _dropLimiter.Dispose();
+      }
+
       public async Task<bool> StartupAsync()
       {
-         var splash = new Splash.SplashScreen();
+         var splash = new Windows.SplashScreen();
          splash.Show();
 
          _hotkeyManager = new HotkeyManager();
@@ -82,7 +88,7 @@ namespace DiscordAutoDrop
          {
             if ( string.IsNullOrEmpty( _settings.UserToken ) )
             {
-               var prompt = new UserTokenPrompt { Owner = splash };
+               var prompt = new UserTokenPromptDialog { Owner = splash };
                if ( prompt.ShowDialog() != true )
                {
                   return false;
@@ -91,7 +97,6 @@ namespace DiscordAutoDrop
             }
             try
             {
-               _client = new DiscordSocketClient();
                await _client.LoginAsync( TokenType.User, _settings.UserToken );
                await _client.StartAsync();
                _settings.UserToken = _settings.UserToken;
@@ -111,9 +116,6 @@ namespace DiscordAutoDrop
                }
             }
          }
-
-         _hotkeyManager = new HotkeyManager();
-         _hotkeyManager.HotkeyFired += OnHotkeyFired;
 
          splash.Close();
          return true;
@@ -155,7 +157,7 @@ namespace DiscordAutoDrop
          var dropVm = _vm.DiscordDrops.FirstOrDefault( x => x.HotkeyId == e.HotkeyId );
          if ( dropVm != null )
          {
-            _rateLimiter.EnqueueDrop( dropVm.DiscordDrop );
+            _dropLimiter.EnqueueDrop( dropVm.DiscordDrop );
          }
       }
 

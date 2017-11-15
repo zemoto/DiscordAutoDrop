@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Collections.Immutable;
 
-namespace DiscordAutoDrop.Splash
+namespace DiscordAutoDrop.Windows
 {
    public enum LoadingTask
    {

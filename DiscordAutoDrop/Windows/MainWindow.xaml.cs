@@ -1,4 +1,4 @@
-﻿namespace DiscordAutoDrop
+﻿namespace DiscordAutoDrop.Windows
 {
    public partial class MainWindow
    {

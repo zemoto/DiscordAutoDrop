@@ -9,14 +9,16 @@ namespace DiscordAutoDrop
          Startup += OnStartup;
       }
 
-      private async void OnStartup( object sender, StartupEventArgs args )
+      private static async void OnStartup( object sender, StartupEventArgs args )
       {
-         var main = new Main();
-         if ( await main.StartupAsync() )
+         using ( var main = new Main() )
          {
-            main.ShowDialog();
+            if ( await main.StartupAsync() )
+            {
+               main.ShowDialog();
+            }
          }
-
+            
          ( (App)sender ).Shutdown();
       }
    }

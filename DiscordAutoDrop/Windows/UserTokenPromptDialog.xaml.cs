@@ -1,12 +1,12 @@
 ﻿using System.Windows;
 
-namespace DiscordAutoDrop
+namespace DiscordAutoDrop.Windows
 {
-   public partial class UserTokenPrompt
+   public partial class UserTokenPromptDialog
    {
       public string UserToken { get; private set; }
 
-      public UserTokenPrompt()
+      public UserTokenPromptDialog()
       {
          InitializeComponent();
       }

@@ -3,7 +3,7 @@ using System.Timers;
 
 namespace DiscordAutoDrop.Utilities
 {
-   internal sealed class DiscordDropRateLimiter
+   internal sealed class DiscordDropRateLimiter : IDisposable
    {
       private readonly Action<string> _rateLimitedAction;
       private readonly Timer _timer;
@@ -17,6 +17,11 @@ namespace DiscordAutoDrop.Utilities
 
          _timer = new Timer( 500/*ms*/ );
          _timer.Elapsed += TimerTick;
+      }
+
+      public void Dispose()
+      {
+         _timer.Dispose();
       }
 
       public void EnqueueDrop( string drop )

@@ -19,19 +19,17 @@ namespace DiscordAutoDrop.Utilities
       {
          try
          {
-            using ( Stream xmlStream = File.Open( _xmlFilePath, FileMode.Create, FileAccess.Write ) )
+            var xmlStream = File.Open( _xmlFilePath, FileMode.Create, FileAccess.Write );
+            var settings = new XmlWriterSettings
             {
-               var settings = new XmlWriterSettings
-               {
-                  Indent = true,
-                  NewLineHandling = NewLineHandling.Entitize
-               };
+               Indent = true,
+               NewLineHandling = NewLineHandling.Entitize
+            };
 
-               var serializer = new XmlSerializer( typeof( T ) );
-               using ( var xmlWriter = XmlWriter.Create( xmlStream, settings ) )
-               {
-                  serializer.Serialize( xmlWriter, objectToSerialize );
-               }
+            var serializer = new XmlSerializer( typeof( T ) );
+            using ( var xmlWriter = XmlWriter.Create( xmlStream, settings ) )
+            {
+               serializer.Serialize( xmlWriter, objectToSerialize );
             }
          }
          catch ( Exception ex )
