@@ -14,5 +14,9 @@ namespace DiscordAutoDrop.Utilities
 
       [DllImport( "user32.dll" )]
       public static extern bool UnregisterHotKey( IntPtr hWnd, int id );
+
+      [DllImport( "user32.dll" )]
+      [return: MarshalAs( UnmanagedType.Bool )]
+      public static extern bool SetForegroundWindow( IntPtr hWnd );
    }
 }
