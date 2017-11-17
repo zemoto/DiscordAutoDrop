@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Discord;
@@ -48,7 +47,7 @@ namespace DiscordAutoDrop
 
          _vm = new MainViewModel()
          {
-            AddDropCommand = new RelayCommand( () => _vm.DiscordDrops.Add( new DiscordDropViewModel() ) ),
+            AddDropCommand = new RelayCommand( () => _vm.DiscordDrops.Insert( 0, new DiscordDropViewModel() ) ),
             RemoveDropCommand = new RelayCommand<DiscordDropViewModel>( drop => _vm.DiscordDrops.Remove( drop ) )
          };
          _vm.Manager.HotkeyFired += OnHotkeyFired;
@@ -100,8 +99,7 @@ namespace DiscordAutoDrop
       private SocketTextChannel GetCurrentChannel()
       {
          foreach ( var guild in _client.Guilds )
-         {
-            // Find the guild the user is currently in
+         {  // Find the guild the user is currently in
             if ( guild.Users.Any( x => x.Id == _client.CurrentUser.Id && x.VoiceChannel != null ) )
             {  // Find the text channel with the id in the settings
                var targetChannel = guild.Channels.FirstOrDefault( x => x.Id == _settings.TargetChannelId ) as SocketTextChannel;
