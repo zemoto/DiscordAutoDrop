@@ -9,19 +9,9 @@ using DiscordAutoDrop.Utilities;
 
 namespace DiscordAutoDrop
 {
-   public sealed class HotkeyFiredEventArgs : EventArgs
-   {
-      public HotkeyFiredEventArgs( int id )
-      {
-         HotkeyId = id;
-      }
-
-      public int HotkeyId { get; }
-   }
-
    public sealed class HotkeyManager : Window
    {
-      public event EventHandler<HotkeyFiredEventArgs> HotkeyFired;
+      public event EventHandler<int> HotkeyFired;
 
       private readonly List<int> _registeredHotkeys = new List<int>();
       private IntPtr _hwnd;
@@ -47,7 +37,7 @@ namespace DiscordAutoDrop
       {
          if ( msg == NativeMethods.WM_HOTKEY )
          {
-            HotkeyFired?.Invoke( this, new HotkeyFiredEventArgs( wparam.ToInt32() ) );
+            HotkeyFired?.Invoke( this, wparam.ToInt32() );
          }
          return IntPtr.Zero;
       }

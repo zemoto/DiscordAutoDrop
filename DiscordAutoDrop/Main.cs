@@ -19,7 +19,7 @@ namespace DiscordAutoDrop
       private const string XmlFileName = "DiscordDropSettings.xml";
 
       private readonly XmlSerializer<Settings> _serializer;
-      private readonly DiscordDropRateLimiter _dropLimiter;
+      private readonly DiscordDropRateLimiter _dropLimiter = new DiscordDropRateLimiter();
       private readonly DiscordSocketClient _client = new DiscordSocketClient();
 
       private HotkeyWindow _window;
@@ -30,7 +30,7 @@ namespace DiscordAutoDrop
       {
          var xmlFilePath = Path.Combine( Directory.GetCurrentDirectory(), XmlFileName );
          _serializer = new XmlSerializer<Settings>( xmlFilePath );
-         _dropLimiter = new DiscordDropRateLimiter( FireDrop );
+         _dropLimiter.FireDrop += FireDrop;
       }
 
       ~Main()
@@ -128,16 +128,16 @@ namespace DiscordAutoDrop
          _window.ShowDialog();
       }
 
-      private void OnHotkeyFired( object sender, HotkeyFiredEventArgs e )
+      private void OnHotkeyFired( object sender, int hotkeyId )
       {
-         var dropVm = _vm.DiscordDrops.FirstOrDefault( x => x.HotkeyId == e.HotkeyId );
+         var dropVm = _vm.DiscordDrops.FirstOrDefault( x => x.HotkeyId == hotkeyId );
          if ( dropVm != null )
          {
             _dropLimiter.EnqueueDrop( dropVm.DiscordDrop );
          }
       }
 
-      private async void FireDrop( string drop )
+      private async void FireDrop( object sender, string drop )
       {
          Debug.WriteLine( $"Sending Drop: {drop}" );
          var channel = GetCurrentChannel();

@@ -5,17 +5,16 @@ namespace DiscordAutoDrop.Utilities
 {
    internal sealed class DiscordDropRateLimiter : IDisposable
    {
-      private readonly Action<string> _rateLimitedAction;
+      public event EventHandler<string> FireDrop;
+
       private readonly Timer _timer;
 
       private string _queuedDrop;
       private readonly object _threadLock = new object();
 
-      public DiscordDropRateLimiter( Action<string> rateLimitedAction )
+      public DiscordDropRateLimiter()
       {
-         _rateLimitedAction = rateLimitedAction;
-
-         _timer = new Timer( 500/*ms*/ );
+         _timer = new Timer( 400/*ms*/ );
          _timer.Elapsed += TimerTick;
       }
 
@@ -38,7 +37,7 @@ namespace DiscordAutoDrop.Utilities
       {
          lock ( _threadLock )
          {
-            _rateLimitedAction( _queuedDrop );
+            FireDrop?.Invoke( this, _queuedDrop );
             _queuedDrop = string.Empty;
             _timer.Stop();
          }
