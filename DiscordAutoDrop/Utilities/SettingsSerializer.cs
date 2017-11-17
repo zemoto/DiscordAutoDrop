@@ -6,30 +6,31 @@ using System.Xml.Serialization;
 
 namespace DiscordAutoDrop.Utilities
 {
-   internal sealed class XmlSerializer<T> where T : class
+   internal sealed class SettingsSerializer
    {
+      private const string XmlFileName = "DiscordDropSettings.xml";
       private readonly string _xmlFilePath;
 
-      public XmlSerializer( string xmlFilePath )
+      public SettingsSerializer()
       {
-         _xmlFilePath = xmlFilePath;
+         _xmlFilePath = Path.Combine( Directory.GetCurrentDirectory(), XmlFileName );
       }
 
-      public void Serialize( T objectToSerialize )
+      public void Serialize( Settings settings )
       {
          try
          {
             var xmlStream = File.Open( _xmlFilePath, FileMode.Create, FileAccess.Write );
-            var settings = new XmlWriterSettings
+            var writerSettings = new XmlWriterSettings
             {
                Indent = true,
                NewLineHandling = NewLineHandling.Entitize
             };
 
-            var serializer = new XmlSerializer( typeof( T ) );
-            using ( var xmlWriter = XmlWriter.Create( xmlStream, settings ) )
+            var serializer = new XmlSerializer( typeof( Settings ) );
+            using ( var xmlWriter = XmlWriter.Create( xmlStream, writerSettings ) )
             {
-               serializer.Serialize( xmlWriter, objectToSerialize );
+               serializer.Serialize( xmlWriter, settings );
             }
          }
          catch ( Exception ex )
@@ -38,16 +39,16 @@ namespace DiscordAutoDrop.Utilities
          }
       }
 
-      public T Deserialize()
+      public Settings Deserialize()
       {
          try
          {
             if ( File.Exists( _xmlFilePath ) )
             {
-               var serializer = new XmlSerializer( typeof( T ) );
+               var serializer = new XmlSerializer( typeof( Settings ) );
                using ( Stream xmlStream = File.Open( _xmlFilePath, FileMode.Open, FileAccess.Read ) )
                {
-                  return serializer.Deserialize( xmlStream ) as T;
+                  return serializer.Deserialize( xmlStream ) as Settings;
                }
             }
          }

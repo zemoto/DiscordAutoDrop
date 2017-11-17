@@ -16,9 +16,7 @@ namespace DiscordAutoDrop
 {
    internal sealed class Main : IDisposable
    {
-      private const string XmlFileName = "DiscordDropSettings.xml";
-
-      private readonly XmlSerializer<Settings> _serializer;
+      private readonly SettingsSerializer _serializer = new SettingsSerializer();
       private readonly DiscordDropRateLimiter _dropLimiter = new DiscordDropRateLimiter();
       private readonly DiscordSocketClient _client = new DiscordSocketClient();
 
@@ -28,8 +26,6 @@ namespace DiscordAutoDrop
 
       public Main()
       {
-         var xmlFilePath = Path.Combine( Directory.GetCurrentDirectory(), XmlFileName );
-         _serializer = new XmlSerializer<Settings>( xmlFilePath );
          _dropLimiter.FireDrop += FireDrop;
       }
 

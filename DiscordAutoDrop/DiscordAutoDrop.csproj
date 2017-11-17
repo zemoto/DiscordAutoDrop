@@ -175,7 +175,7 @@
       <DependentUpon>UserTokenPromptDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utilities\DiscordDropRateLimiter.cs" />
-    <Compile Include="Utilities\XmlSerializer.cs" />
+    <Compile Include="Utilities\SettingsSerializer.cs" />
     <Compile Include="ViewModels\DiscordDropViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="MVVM\ViewModelBase.cs" />
