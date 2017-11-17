@@ -6,7 +6,7 @@ namespace DiscordAutoDrop.Windows
    {
       Initializing,
       LoadingSettings,
-      RegisteringSavedHotkeys,
+      RegisteringHotkeys,
       LaunchingSelfBot
    }
 
@@ -16,14 +16,13 @@ namespace DiscordAutoDrop.Windows
       {
          [LoadingTask.Initializing] = "Initializing...",
          [LoadingTask.LoadingSettings] = "Loading Settings...",
-         [LoadingTask.RegisteringSavedHotkeys] = "Registering saved hotkeys...",
+         [LoadingTask.RegisteringHotkeys] = "Registering hotkeys...",
          [LoadingTask.LaunchingSelfBot] = "Launching Self-Bot..."
       };
 
       public SplashScreen()
       {
          InitializeComponent();
-
          DisplayTask( LoadingTask.Initializing );
       }
 

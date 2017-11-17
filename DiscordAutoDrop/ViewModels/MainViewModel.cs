@@ -5,12 +5,7 @@ namespace DiscordAutoDrop.ViewModels
 {
    internal sealed class MainViewModel : ViewModelBase
    {
-      public MainViewModel( HotkeyManager manager )
-      {
-         Manager = manager;
-      }
-
-      public HotkeyManager Manager { get; }
+      public HotkeyManager Manager { get; } = new HotkeyManager();
 
       public ObservableCollection<DiscordDropViewModel> DiscordDrops { get; } = new ObservableCollection<DiscordDropViewModel>();
 

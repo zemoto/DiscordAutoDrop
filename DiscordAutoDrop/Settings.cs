@@ -9,5 +9,7 @@ namespace DiscordAutoDrop
    {
       public List<DiscordDropViewModel> DiscordDrops { get; set; }
       public string UserToken { get; set; }
+
+      public ulong TargetChannelId { get; set; } = 153577153320058881;
    }
 }

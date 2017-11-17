@@ -11,34 +11,30 @@ using DiscordAutoDrop.ViewModels;
 using System;
 using System.Diagnostics;
 using System.Windows;
-using System.Web;
 
 namespace DiscordAutoDrop
 {
    internal sealed class Main : IDisposable
    {
-      private const string XmlFileName = "DiscordAutoDropSettings.xml";
+      private const string XmlFileName = "DiscordDropSettings.xml";
 
       private readonly XmlSerializer<Settings> _serializer;
       private readonly DiscordDropRateLimiter _dropLimiter;
       private readonly DiscordSocketClient _client = new DiscordSocketClient();
 
-      private MainWindow _window;
+      private HotkeyWindow _window;
       private MainViewModel _vm;
-      private HotkeyManager _hotkeyManager;
       private Settings _settings;
 
       public Main()
       {
          var xmlFilePath = Path.Combine( Directory.GetCurrentDirectory(), XmlFileName );
          _serializer = new XmlSerializer<Settings>( xmlFilePath );
-
          _dropLimiter = new DiscordDropRateLimiter( FireDrop );
       }
 
       ~Main()
       {
-         _hotkeyManager.HotkeyFired -= OnHotkeyFired;
          _settings.DiscordDrops = _vm.DiscordDrops.Where( x => x.HotKey != Key.None && !string.IsNullOrWhiteSpace( x.DiscordDrop ) ).ToList();
          _serializer.Serialize( _settings );
       }
@@ -54,23 +50,22 @@ namespace DiscordAutoDrop
          var splash = new Windows.SplashScreen();
          splash.Show();
 
-         _hotkeyManager = new HotkeyManager();
-         _hotkeyManager.HotkeyFired += OnHotkeyFired;
-         _vm = new MainViewModel( _hotkeyManager )
+         _vm = new MainViewModel()
          {
             AddDropCommand = new RelayCommand( () => _vm.DiscordDrops.Add( new DiscordDropViewModel() ) ),
             RemoveDropCommand = new RelayCommand<DiscordDropViewModel>( drop => _vm.DiscordDrops.Remove( drop ) )
          };
+         _vm.Manager.HotkeyFired += OnHotkeyFired;
 
          splash.DisplayTask( LoadingTask.LoadingSettings );
          _settings = await Task.Factory.StartNew( _serializer.Deserialize ) ?? new Settings();
 
-         splash.DisplayTask( LoadingTask.RegisteringSavedHotkeys );
+         splash.DisplayTask( LoadingTask.RegisteringHotkeys );
          if ( _settings?.DiscordDrops != null )
          {
             foreach ( var drop in _settings.DiscordDrops )
             {
-               if ( _hotkeyManager.TryRegister( drop.HotKey, drop.Modifier, out int id ) )
+               if ( _vm.Manager.TryRegister( drop.HotKey, drop.Modifier, out int id ) )
                {
                   drop.HotkeyId = id;
                   _vm.DiscordDrops.Add( drop );
@@ -94,52 +89,38 @@ namespace DiscordAutoDrop
             {
                await _client.LoginAsync( TokenType.User, _settings.UserToken );
                await _client.StartAsync();
-               _settings.UserToken = _settings.UserToken;
                break;
             }
-            catch ( Exception ex )
+            catch
             {
                _settings.UserToken = string.Empty;
-               switch ( ex )
-               {
-                  case HttpException _:
-                     MessageBox.Show( "Could not start self-bot with given token" );
-                     break;
-                  case FormatException _:
-                     MessageBox.Show( "Token format is invalid" );
-                     break;
-               }
+               MessageBox.Show( "Could not start self-bot with given token" );
             }
          }
-
          splash.Close();
          return true;
       }
 
       private SocketTextChannel GetCurrentChannel()
       {
-         var currentUser = _client.CurrentUser;
-
          foreach ( var guild in _client.Guilds )
          {
-            if ( guild.Users.Any( x => x.Id == currentUser.Id && x.VoiceChannel != null ) )
-            {
-               foreach ( var channel in guild.Channels )
+            // Find the guild the user is currently in
+            if ( guild.Users.Any( x => x.Id == _client.CurrentUser.Id && x.VoiceChannel != null ) )
+            {  // Find the text channel with the id in the settings
+               var targetChannel = guild.Channels.FirstOrDefault( x => x.Id == _settings.TargetChannelId ) as SocketTextChannel;
+               if ( targetChannel != null )
                {
-                  if ( channel is SocketTextChannel && channel.Users.Any( x => x.DiscriminatorValue == 8428 && x.Username == "buster" ) )
-                  {
-                     return channel as SocketTextChannel;
-                  }
+                  return targetChannel;
                }
             }
-            
          }
          return null;
       }
 
       public void ShowDialog()
       {
-         _window = new MainWindow
+         _window = new HotkeyWindow
          {
             DataContext = _vm
          };
@@ -160,7 +141,7 @@ namespace DiscordAutoDrop
       {
          Debug.WriteLine( $"Sending Drop: {drop}" );
          var channel = GetCurrentChannel();
-         if ( channel != null )
+         if ( channel != null && !string.IsNullOrEmpty( drop ) )
          {
             await channel.SendMessageAsync( drop );
          }

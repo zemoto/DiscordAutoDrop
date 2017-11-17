@@ -1,8 +1,8 @@
 ﻿namespace DiscordAutoDrop.Windows
 {
-   public partial class MainWindow
+   public partial class HotkeyWindow
    {
-      public MainWindow()
+      public HotkeyWindow()
       {
          InitializeComponent();
       }
