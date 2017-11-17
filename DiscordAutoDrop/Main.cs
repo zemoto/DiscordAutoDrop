@@ -99,14 +99,11 @@ namespace DiscordAutoDrop
       private SocketTextChannel GetCurrentChannel()
       {
          foreach ( var guild in _client.Guilds )
-         {  // Find the guild the user is currently in
-            if ( guild.Users.Any( x => x.Id == _client.CurrentUser.Id && x.VoiceChannel != null ) )
-            {  // Find the text channel with the id in the settings
-               var targetChannel = guild.Channels.FirstOrDefault( x => x.Id == _settings.TargetChannelId ) as SocketTextChannel;
-               if ( targetChannel != null )
-               {
-                  return targetChannel;
-               }
+         {
+            if ( guild.Users.Any( x => x.Id == _client.CurrentUser.Id && x.VoiceChannel != null ) &&
+                 guild.Channels.FirstOrDefault( x => x.Id == _settings.TargetChannelId ) is SocketTextChannel targetChannel )
+            {
+               return targetChannel;
             }
          }
          return null;
