@@ -36,7 +36,7 @@ namespace DiscordAutoDrop.Utilities
                {
                   return false;
                }
-               token = prompt.UserToken;
+               token = prompt.UserToken.Trim( '\"' );
             }
             try
             {
