@@ -18,6 +18,7 @@ namespace DiscordAutoDrop
       private readonly SettingsSerializer _serializer = new SettingsSerializer();
       private readonly DiscordDropRateLimiter _dropLimiter = new DiscordDropRateLimiter();
       private readonly DiscordSocketClient _client = new DiscordSocketClient();
+      private readonly TaskbarIcon _taskBarIcon = new TaskbarIcon();
 
       private HotkeyWindow _window;
       private MainViewModel _vm;
@@ -26,6 +27,7 @@ namespace DiscordAutoDrop
       public Main()
       {
          _dropLimiter.FireDrop += FireDrop;
+         _taskBarIcon = new TaskbarIcon();
       }
 
       ~Main()
@@ -38,12 +40,14 @@ namespace DiscordAutoDrop
       {
          _client.Dispose();
          _dropLimiter.Dispose();
+         _taskBarIcon.Dispose();
       }
 
       public async Task<bool> StartupAsync()
       {
          var splash = new Windows.SplashScreen();
          splash.Show();
+         _taskBarIcon.Show();
 
          _vm = new MainViewModel()
          {
