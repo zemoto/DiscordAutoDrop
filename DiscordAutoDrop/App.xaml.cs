@@ -7,25 +7,23 @@ namespace DiscordAutoDrop
 {
    public partial class App
    {
+      private Main _main;
+
       public App()
       {
          ShutdownMode = ShutdownMode.OnExplicitShutdown;
          Startup += OnStartup;
+         Exit += OnExit;
       }
 
-      private static async void OnStartup( object sender, StartupEventArgs args )
+      private async void OnStartup( object sender, StartupEventArgs args )
       {
          using ( var mutex = new Mutex( true, "DiscordAutoDrop", out bool created ) )
          {
             if ( created )
             {
-               using ( var main = new Main() )
-               {
-                  if ( await main.StartupAsync() )
-                  {
-                     main.ShowDialog();
-                  }
-               }
+               _main = new Main();
+               await _main.StartupAsync();
             }
             else
             {
@@ -38,9 +36,14 @@ namespace DiscordAutoDrop
                      break;
                   }
                }
+               ( (App)sender ).Shutdown();
             }
          }
-         ( (App)sender ).Shutdown();
+      }
+
+      private void OnExit( object sender, ExitEventArgs e )
+      {
+         _main?.Dispose();
       }
    }
 }

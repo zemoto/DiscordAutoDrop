@@ -7,7 +7,8 @@ namespace DiscordAutoDrop.Windows
       Initializing,
       LoadingSettings,
       RegisteringHotkeys,
-      LaunchingSelfBot
+      LaunchingSelfBot,
+      LoadingTaskbarIcon
    }
 
    public partial class SplashScreen
@@ -17,7 +18,8 @@ namespace DiscordAutoDrop.Windows
          [LoadingTask.Initializing] = "Initializing...",
          [LoadingTask.LoadingSettings] = "Loading Settings...",
          [LoadingTask.RegisteringHotkeys] = "Registering hotkeys...",
-         [LoadingTask.LaunchingSelfBot] = "Launching Self-Bot..."
+         [LoadingTask.LaunchingSelfBot] = "Launching Self-Bot...",
+         [LoadingTask.LoadingTaskbarIcon] = "Initializing Taskbar Icon..."
       };
 
       public SplashScreen()

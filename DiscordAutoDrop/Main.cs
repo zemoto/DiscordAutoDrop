@@ -18,8 +18,8 @@ namespace DiscordAutoDrop
       private readonly SettingsSerializer _serializer = new SettingsSerializer();
       private readonly DiscordDropRateLimiter _dropLimiter = new DiscordDropRateLimiter();
       private readonly DiscordSocketClient _client = new DiscordSocketClient();
-      private readonly TaskbarIcon _taskBarIcon = new TaskbarIcon();
 
+      private TaskbarIcon _taskBarIcon;
       private HotkeyWindow _window;
       private MainViewModel _vm;
       private Settings _settings;
@@ -27,7 +27,6 @@ namespace DiscordAutoDrop
       public Main()
       {
          _dropLimiter.FireDrop += FireDrop;
-         _taskBarIcon = new TaskbarIcon();
       }
 
       ~Main()
@@ -40,14 +39,13 @@ namespace DiscordAutoDrop
       {
          _client.Dispose();
          _dropLimiter.Dispose();
-         _taskBarIcon.Dispose();
+         _taskBarIcon?.Dispose();
       }
 
       public async Task<bool> StartupAsync()
       {
          var splash = new Windows.SplashScreen();
          splash.Show();
-         _taskBarIcon.Show();
 
          _vm = new MainViewModel()
          {
@@ -96,6 +94,11 @@ namespace DiscordAutoDrop
                MessageBox.Show( "Could not start self-bot with given token" );
             }
          }
+
+         splash.DisplayTask( LoadingTask.LoadingTaskbarIcon );
+         _taskBarIcon = new TaskbarIcon( ShowHotkeyWindow );
+         _taskBarIcon.Show();
+
          splash.Close();
          return true;
       }
@@ -113,14 +116,19 @@ namespace DiscordAutoDrop
          return null;
       }
 
-      public void ShowDialog()
+      private void ShowHotkeyWindow()
       {
+         if ( _window?.IsLoaded == true )
+         {
+            _window.Activate();
+            return;
+         }
+
          _window = new HotkeyWindow
          {
             DataContext = _vm
          };
-
-         _window.ShowDialog();
+         _window.Show();
       }
 
       private void OnHotkeyFired( object sender, int hotkeyId )
