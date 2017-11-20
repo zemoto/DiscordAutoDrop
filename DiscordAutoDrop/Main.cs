@@ -1,15 +1,11 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Discord;
-using Discord.WebSocket;
 using DiscordAutoDrop.MVVM;
 using DiscordAutoDrop.Windows;
 using DiscordAutoDrop.Utilities;
 using DiscordAutoDrop.ViewModels;
 using System;
-using System.Diagnostics;
-using System.Windows;
 
 namespace DiscordAutoDrop
 {
@@ -17,17 +13,12 @@ namespace DiscordAutoDrop
    {
       private readonly SettingsSerializer _serializer = new SettingsSerializer();
       private readonly DropLimiter _dropLimiter = new DropLimiter();
-      private readonly DiscordSocketClient _client = new DiscordSocketClient();
 
+      private DiscordWrapper _discordWrapper;
       private TaskbarIcon _taskBarIcon;
       private HotkeyWindow _window;
       private MainViewModel _vm;
       private Settings _settings;
-
-      public Main()
-      {
-         _dropLimiter.FireDrop += FireDrop;
-      }
 
       ~Main()
       {
@@ -37,14 +28,14 @@ namespace DiscordAutoDrop
 
       public void Dispose()
       {
-         _client.Dispose();
          _dropLimiter.Dispose();
+         _discordWrapper?.Dispose();
          _taskBarIcon?.Dispose();
       }
 
       public async Task<bool> StartupAsync()
       {
-         var splash = new Windows.SplashScreen();
+         var splash = new SplashScreen();
          splash.Show();
 
          _vm = new MainViewModel()
@@ -71,28 +62,11 @@ namespace DiscordAutoDrop
          }
 
          splash.DisplayTask( LoadingTask.LaunchingSelfBot );
-         while ( true )
+         _discordWrapper = new DiscordWrapper( _settings.TargetChannelId );
+         _dropLimiter.FireDrop += ( _, drop ) => _discordWrapper.FireDrop( drop );
+         if ( !await _discordWrapper.LoginAsync( _settings, splash ) )
          {
-            if ( string.IsNullOrEmpty( _settings.UserToken ) )
-            {
-               var prompt = new UserTokenPromptDialog { Owner = splash };
-               if ( prompt.ShowDialog() != true )
-               {
-                  return false;
-               }
-               _settings.UserToken = prompt.UserToken;
-            }
-            try
-            {
-               await _client.LoginAsync( TokenType.User, _settings.UserToken );
-               await _client.StartAsync();
-               break;
-            }
-            catch
-            {
-               _settings.UserToken = string.Empty;
-               MessageBox.Show( "Could not start self-bot with given token" );
-            }
+            return false;
          }
 
          splash.DisplayTask( LoadingTask.LoadingTaskbarIcon );
@@ -101,19 +75,6 @@ namespace DiscordAutoDrop
 
          splash.Close();
          return true;
-      }
-
-      private SocketTextChannel GetCurrentChannel()
-      {
-         foreach ( var guild in _client.Guilds )
-         {
-            if ( guild.Users.Any( x => x.Id == _client.CurrentUser.Id && x.VoiceChannel != null ) &&
-                 guild.Channels.FirstOrDefault( x => x.Id == _settings.TargetChannelId ) is SocketTextChannel targetChannel )
-            {
-               return targetChannel;
-            }
-         }
-         return null;
       }
 
       private void ShowHotkeyWindow()
@@ -137,16 +98,6 @@ namespace DiscordAutoDrop
          if ( dropVm != null )
          {
             _dropLimiter.EnqueueDrop( dropVm.DiscordDrop );
-         }
-      }
-
-      private async void FireDrop( object sender, string drop )
-      {
-         Debug.WriteLine( $"Sending Drop: {drop}" );
-         var channel = GetCurrentChannel();
-         if ( channel != null && !string.IsNullOrEmpty( drop ) )
-         {
-            await channel.SendMessageAsync( drop );
          }
       }
    }

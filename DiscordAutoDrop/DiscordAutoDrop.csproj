@@ -171,6 +171,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="TaskbarIcon.cs" />
+    <Compile Include="Utilities\DiscordWrapper.cs" />
     <Compile Include="Windows\HotkeyControl.xaml.cs">
       <DependentUpon>HotkeyControl.xaml</DependentUpon>
     </Compile>

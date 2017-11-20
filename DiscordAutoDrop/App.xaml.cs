@@ -23,7 +23,10 @@ namespace DiscordAutoDrop
             if ( created )
             {
                _main = new Main();
-               await _main.StartupAsync();
+               if ( !await _main.StartupAsync() )
+               {
+                  ( (App)sender ).Shutdown();
+               }
             }
             else
             {
