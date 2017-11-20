@@ -16,7 +16,7 @@ namespace DiscordAutoDrop
    internal sealed class Main : IDisposable
    {
       private readonly SettingsSerializer _serializer = new SettingsSerializer();
-      private readonly DiscordDropRateLimiter _dropLimiter = new DiscordDropRateLimiter();
+      private readonly DropLimiter _dropLimiter = new DropLimiter();
       private readonly DiscordSocketClient _client = new DiscordSocketClient();
 
       private TaskbarIcon _taskBarIcon;

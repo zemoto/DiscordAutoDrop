@@ -3,7 +3,7 @@ using System.Timers;
 
 namespace DiscordAutoDrop.Utilities
 {
-   internal sealed class DiscordDropRateLimiter : IDisposable
+   internal sealed class DropLimiter : IDisposable
    {
       public event EventHandler<string> FireDrop;
 
@@ -12,7 +12,7 @@ namespace DiscordAutoDrop.Utilities
       private string _queuedDrop;
       private readonly object _threadLock = new object();
 
-      public DiscordDropRateLimiter()
+      public DropLimiter()
       {
          _timer = new Timer( 400/*ms*/ );
          _timer.Elapsed += TimerTick;
