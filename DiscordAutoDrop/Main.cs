@@ -43,7 +43,7 @@ namespace DiscordAutoDrop
             AddDropCommand = new RelayCommand( () => _vm.DiscordDrops.Insert( 0, new DiscordDropViewModel() ) ),
             RemoveDropCommand = new RelayCommand<DiscordDropViewModel>( drop => _vm.DiscordDrops.Remove( drop ) )
          };
-         _vm.Manager.HotkeyFired += OnHotkeyFired;
+         HotkeyManager.HotkeyFired += OnHotkeyFired;
 
          splash.DisplayTask( LoadingTask.LoadingSettings );
          _settings = await Task.Factory.StartNew( _serializer.Deserialize ) ?? new Settings();
@@ -53,7 +53,7 @@ namespace DiscordAutoDrop
          {
             foreach ( var drop in _settings.DiscordDrops )
             {
-               if ( _vm.Manager.TryRegister( drop.HotKey, drop.Modifier, out int id ) )
+               if ( HotkeyManager.Register( drop.HotKey, drop.Modifier, out int id ) )
                {
                   drop.HotkeyId = id;
                   _vm.DiscordDrops.Add( drop );

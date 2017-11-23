@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
@@ -11,13 +10,17 @@ namespace DiscordAutoDrop
 {
    public sealed class HotkeyManager : Window
    {
-      public event EventHandler<int> HotkeyFired;
+      private static HotkeyManager _instance = new HotkeyManager();
+      public static bool Register( Key key, ModifierKeys modifier, out int id ) => _instance.TryRegister( key, modifier, out id );
+      public static void Unregister( int id ) => _instance.TryUnregister( id );
+
+      public static event EventHandler<int> HotkeyFired;
 
       private readonly List<int> _registeredHotkeys = new List<int>();
       private IntPtr _hwnd;
       private HwndSource _source;
 
-      public HotkeyManager()
+      private HotkeyManager()
       {
          var helper = new WindowInteropHelper( this );
          helper.EnsureHandle();
@@ -42,7 +45,7 @@ namespace DiscordAutoDrop
          return IntPtr.Zero;
       }
 
-      public bool TryRegister( Key key, ModifierKeys modifier, out int id )
+      private bool TryRegister( Key key, ModifierKeys modifier, out int id )
       {
          id = (int)key + (int)modifier * 0x10000;
 
@@ -56,11 +59,11 @@ namespace DiscordAutoDrop
          return result;
       }
 
-      public void Unregister( int id )
+      private void TryUnregister( int id )
       {
          if ( _registeredHotkeys.Contains( id ) )
          {
-            Debug.Assert( NativeMethods.UnregisterHotKey( _hwnd, id ) );
+            NativeMethods.UnregisterHotKey( _hwnd, id );
             _registeredHotkeys.Remove( id );
          }
       }

@@ -39,8 +39,7 @@
                               Margin="8,4" />
                      <windows:HotkeyControl Hotkey="{Binding HotKey, Mode=TwoWay}"
                                             Modifier="{Binding Modifier, Mode=TwoWay}"
-                                            HotkeyId="{Binding HotkeyId, Mode=TwoWay}"
-                                            Manager="{Binding DataContext.Manager, ElementName=RootControl}" />
+                                            HotkeyId="{Binding HotkeyId, Mode=TwoWay}" />
                      <Button Width="24"
                              Height="24"
                              Margin="8"

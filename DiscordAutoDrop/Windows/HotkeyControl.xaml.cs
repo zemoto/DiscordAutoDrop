@@ -5,18 +5,6 @@ namespace DiscordAutoDrop.Windows
 {
    public partial class HotkeyControl
    {
-      public static readonly DependencyProperty ManagerProperty = DependencyProperty.Register(
-         nameof(Manager),
-         typeof(HotkeyManager),
-         typeof(HotkeyControl),
-         new PropertyMetadata( null ) );
-
-      public HotkeyManager Manager
-      {
-         get => (HotkeyManager)GetValue( ManagerProperty );
-         set => SetValue( ManagerProperty, value );
-      }
-
       public static readonly DependencyProperty HotkeyProperty = DependencyProperty.Register(
          nameof(Hotkey),
          typeof(Key),
@@ -95,11 +83,11 @@ namespace DiscordAutoDrop.Windows
             return;
          }
 
-         if ( Manager != null && Manager.TryRegister( key, modifier, out int id ) )
+         if ( HotkeyManager.Register( key, modifier, out int id ) )
          {
             if ( Hotkey != Key.None )
             {
-               Manager.Unregister( HotkeyId );
+               HotkeyManager.Unregister( HotkeyId );
             }
 
             Hotkey = key;
