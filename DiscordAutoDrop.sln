@@ -1,11 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26730.16
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31911.196
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordAutoDrop", "DiscordAutoDrop\DiscordAutoDrop.csproj", "{C6F336FF-2E93-4C80-B5D1-D540DF356E3A}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "ZemotoUI", "ZemotoCommon\ZemotoUI\ZemotoUI.shproj", "{7542EB89-ECC5-4A33-B7D6-18C2DB8CA072}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "ZemotoUtils", "ZemotoCommon\ZemotoUtils\ZemotoUtils.shproj", "{B50AFE0A-263C-4FB2-8EED-291F6763FBEC}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		ZemotoCommon\ZemotoUI\ZemotoUI.projitems*{7542eb89-ecc5-4a33-b7d6-18c2db8ca072}*SharedItemsImports = 13
+		ZemotoCommon\ZemotoUtils\ZemotoUtils.projitems*{b50afe0a-263c-4fb2-8eed-291f6763fbec}*SharedItemsImports = 13
+		ZemotoCommon\ZemotoUI\ZemotoUI.projitems*{c6f336ff-2e93-4c80-b5d1-d540df356e3a}*SharedItemsImports = 4
+		ZemotoCommon\ZemotoUtils\ZemotoUtils.projitems*{c6f336ff-2e93-4c80-b5d1-d540df356e3a}*SharedItemsImports = 4
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU

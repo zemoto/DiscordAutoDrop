@@ -188,8 +188,6 @@
     <Compile Include="Utilities\SettingsSerializer.cs" />
     <Compile Include="ViewModels\DiscordDropViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
-    <Compile Include="MVVM\ViewModelBase.cs" />
-    <Compile Include="MVVM\RelayCommand.cs" />
     <Compile Include="Utilities\NativeMethods.cs" />
     <Page Include="Windows\HotkeyControl.xaml">
       <SubType>Designer</SubType>
@@ -240,6 +238,8 @@
   <ItemGroup>
     <Resource Include="icon.ico" />
   </ItemGroup>
+  <Import Project="..\ZemotoCommon\ZemotoUI\ZemotoUI.projitems" Label="Shared" />
+  <Import Project="..\ZemotoCommon\ZemotoUtils\ZemotoUtils.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.2.0.0\build\netstandard1.4\Fody.targets" Condition="Exists('..\packages\Fody.2.0.0\build\netstandard1.4\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
