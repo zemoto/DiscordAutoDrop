@@ -15,8 +15,7 @@
                  Margin="8" />
       <TextBox Name="TokenTextBlock"
                Margin="8,0"
-               MaxLines="1"
-               MaxLength="70" />
+               MaxLines="1" />
       <Button Content="OK"
               Click="OnOk"
               Margin="8"
